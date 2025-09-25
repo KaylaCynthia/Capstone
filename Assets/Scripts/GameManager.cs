@@ -1,31 +1,58 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("UI References")]
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject pausePanel;
 
+    [Header("Dialogue System")]
+    [SerializeField] private InkFileManager inkFileManager;
+
     private bool isPaused = false;
     private bool isSettings = false;
-
     private string currentSceneName;
-    private DialogueManager dialogueManager;
-    private InkyStories inkyStories;
+
+    private static GameManager instance;
+    public static GameManager GetInstance() => instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void Start()
     {
         currentSceneName = SceneManager.GetActiveScene().name;
-        dialogueManager = FindAnyObjectByType<DialogueManager>();
-        inkyStories = FindAnyObjectByType<InkyStories>();
-        if (currentSceneName == "GameContent" && dialogueManager != null)
+        StartGame();
+    }
+
+    public void StartGame()
+    {
+        if (inkFileManager != null)
         {
-            TextAsset inkJSON = inkyStories.inkStoryFiles[0];
-            dialogueManager.StartDialogue(inkJSON);
+            ChatDialogueManager dialogueManager = ChatDialogueManager.GetInstance();
+            if (dialogueManager != null)
+            {
+                dialogueManager.StartConversation("Test_1");
+                Debug.Log("Game started with dialogue.");
+            }
         }
+    }
+
+    public void OnConversationComplete()
+    {
+        Debug.Log("Conversation completed!");
+        // Will be filled later
     }
 
     private void Update()
