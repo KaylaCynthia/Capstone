@@ -43,8 +43,7 @@ public class GameManager : MonoBehaviour
             ChatDialogueManager dialogueManager = ChatDialogueManager.GetInstance();
             if (dialogueManager != null)
             {
-                dialogueManager.StartConversation("Test_1");
-                Debug.Log("Game started with dialogue.");
+                dialogueManager.StartConversation("diluc_intro", "ChatAreaDiluc");
             }
         }
     }
@@ -52,7 +51,6 @@ public class GameManager : MonoBehaviour
     public void OnConversationComplete()
     {
         Debug.Log("Conversation completed!");
-        // Will be filled later
     }
 
     private void Update()

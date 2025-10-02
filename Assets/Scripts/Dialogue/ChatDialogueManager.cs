@@ -25,7 +25,7 @@ public class ChatDialogueManager : MonoBehaviour
     private DialogueState currentState;
     private DialogueParser dialogueParser;
     private Dictionary<string, GameObject> lastMessageFromUser;
-    private bool isMakingChoice = false;
+    private string currentConversationChatArea;
 
     private static ChatDialogueManager instance;
     public static ChatDialogueManager GetInstance() => instance;
@@ -53,29 +53,34 @@ public class ChatDialogueManager : MonoBehaviour
         currentState = new DialogueState();
         lastMessageFromUser = new Dictionary<string, GameObject>();
         Initialize();
+        chatUI.SwitchToChatArea("ChatAreaDiluc");
     }
 
     private void Initialize()
     {
         DialogueIsPlaying = false;
         chatUI.Initialize();
-        choiceHandler.Initialize(MakeChoice);
+        choiceHandler.Initialize(MakeChoice, chatUI);
         lastMessageFromUser.Clear();
     }
 
-    public void StartConversation(string conversationKey)
+    public void StartConversation(string conversationKey, string chatAreaName)
     {
+        //Debug.Log($"Starting conversation: {conversationKey} in chat area: {chatAreaName}");
         if (inkFileManager == null)
         {
             Debug.LogError("InkFileManager is not assigned!");
             return;
         }
 
+        currentConversationChatArea = chatAreaName;
+
         inkFileManager.StartConversation(conversationKey);
         TextAsset inkFile = inkFileManager.GetCurrentInkFile();
 
         if (inkFile != null)
         {
+            //Debug.Log($"Starting conversation with Ink file: {inkFile.name}. Messages will go to: {currentConversationChatArea}");
             EnterDialogueMode(inkFile);
         }
     }
@@ -85,8 +90,6 @@ public class ChatDialogueManager : MonoBehaviour
         currentStory = new Story(inkJSON.text);
         DialogueIsPlaying = true;
         chatUI.Show();
-        currentState.Reset();
-        lastMessageFromUser.Clear();
         ContinueStory();
     }
 
@@ -108,7 +111,10 @@ public class ChatDialogueManager : MonoBehaviour
 
     private void HandleEndOfConversation()
     {
+        string nextChatArea = DetermineNextChatArea();
         string nextBranch = DetermineNextBranch();
+
+        //Debug.Log($"Conversation ended. Next area: {nextChatArea}, Next branch: {nextBranch}");
 
         if (!string.IsNullOrEmpty(nextBranch))
         {
@@ -117,13 +123,31 @@ public class ChatDialogueManager : MonoBehaviour
 
             if (nextInkFile != null)
             {
+                currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
+
+                //Debug.Log($"Moving to next conversation in area: {currentConversationChatArea} (player remains in: {chatUI.GetCurrentChatAreaName()})");
                 EnterDialogueMode(nextInkFile);
                 return;
             }
         }
 
-        Debug.Log("End of conversation reached.");
+        //Debug.Log("End of conversation reached.");
         StartCoroutine(ExitDialogueMode());
+    }
+
+    private string DetermineNextChatArea()
+    {
+        if (currentStory.variablesState.GlobalVariableExistsWithName("nextChatArea"))
+        {
+            object nextChatAreaObj = currentStory.variablesState["nextChatArea"];
+            return nextChatAreaObj?.ToString();
+        }
+        return null;
+    }
+
+    public void SwitchToChatArea(string areaName)
+    {
+        chatUI.SwitchToChatArea(areaName);
     }
 
     private string DetermineNextBranch()
@@ -170,7 +194,8 @@ public class ChatDialogueManager : MonoBehaviour
         else
         {
             ChatMessage chatMessage = ChatMessageFactory.Create(message, currentState);
-            messageUI = chatUI.AddMessageToChat(chatMessage);
+
+            messageUI = chatUI.AddMessageToChat(chatMessage, currentConversationChatArea);
 
             if (!isPlayerMessage)
             {
@@ -183,19 +208,48 @@ public class ChatDialogueManager : MonoBehaviour
             }
         }
 
-        chatUI.ScrollToBottom();
+        if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea || isPlayerMessage)
+        {
+            chatUI.ScrollToBottom();
+        }
+
         currentState.SetWaitingForInput(true);
 
         if (currentStory.currentChoices.Count > 0)
         {
             yield return new WaitForSeconds(0.5f);
-            choiceHandler.ShowChoices(currentStory.currentChoices);
+
+            if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
+            {
+                choiceHandler.ShowChoices(currentStory.currentChoices, currentConversationChatArea);
+            }
+            else
+            {
+                //Debug.Log($"Choices available in {currentConversationChatArea}, but player is in {chatUI.GetCurrentChatAreaName()}. Waiting for player to switch...");
+                yield return WaitForPlayerToSwitchToCorrectArea();
+            }
         }
-        else if (currentStory.canContinue)
+        else
         {
+            choiceHandler.Hide();
             yield return new WaitForSeconds(1f);
             ContinueStory();
         }
+    }
+
+    private IEnumerator WaitForPlayerToSwitchToCorrectArea()
+    {
+        while (chatUI.GetCurrentChatAreaName() != currentConversationChatArea)
+        {
+            yield return null;
+
+            if (!DialogueIsPlaying)
+            {
+                yield break;
+            }
+        }
+
+        choiceHandler.ShowChoices(currentStory.currentChoices, currentConversationChatArea);
     }
 
     public void MakeChoice(int choiceIndex)
@@ -205,7 +259,6 @@ public class ChatDialogueManager : MonoBehaviour
             string choiceText = currentStory.currentChoices[choiceIndex].text;
             DisplayPlayerChoice(choiceText);
             currentStory.ChooseChoiceIndex(choiceIndex);
-            choiceHandler.Hide();
             ContinueStory();
         }
     }
@@ -225,7 +278,6 @@ public class ChatDialogueManager : MonoBehaviour
         }
 
         chatUI.ScrollToBottom();
-
         lastMessageFromUser.Clear();
     }
 

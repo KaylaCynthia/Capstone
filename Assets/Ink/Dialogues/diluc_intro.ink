@@ -1,3 +1,6 @@
+VAR nextChatArea = ""
+VAR nextBranch = ""
+
 # speaker: Somebody
 # portrait: Somebody_hehe
 (Diluc Went Online)
@@ -48,14 +51,18 @@ That said, even the most well-oiled machinery requires maintenance. I was planni
 === diluc_juice_yes ===
 # speaker: Diluc
 # portrait: diluc_happy
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
 Good. I will meet you at the Angel's Share in one hour. The main hall is closed to patrons at this time, so we will not be disturbed. I have a new batch from the southern vineyards I've been meaning to sample. Your opinion would be... valued.
-
--> END
+-> DONE
 
 === diluc_juice_no ===
 # speaker: Diluc
 # portrait: diluc_neutral
 Very well. The offer remains open. Do not hesitate to stop by if your duties lighten. I will ensure a bottle is set aside for you.
+
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
 
 -> END
 
@@ -64,12 +71,18 @@ Very well. The offer remains open. Do not hesitate to stop by if your duties lig
 # portrait: diluc_thoughtful
 Understood. I will be occupied with inventory until nightfall. Simply send a message when you are available. I will see if my schedule permits.
 
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
+
 -> END
 
 === diluc_talk_yes ===
 # speaker: Diluc
 # portrait: diluc_concerned
 Then I am listening. You can speak freely; these messages are secure. Whether it is a matter of the heart or a more tangible problem, we will address it. Please, begin whenever you are ready.
+
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
 
 -> END
 
@@ -78,12 +91,18 @@ Then I am listening. You can speak freely; these messages are secure. Whether it
 # portrait: diluc_neutral
 Your resolve is noted. I will not press the matter further. However, my earlier statement stands. Should the situation change, you know where to find me. Stay vigilant.
 
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
+
 -> END
 
 === diluc_tea_yes ===
 # speaker: Diluc
 # portrait: diluc_happy
 A sound decision. The place is a small house near the city's secondary gate, marked by a pot of glaze lilies. It is discreet. I will procure a table for us in thirty minutes. They serve a Sumeru-inspired blend that is particularly effective at calming the nerves.
+
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
 
 -> END
 
@@ -92,6 +111,9 @@ A sound decision. The place is a small house near the city's secondary gate, mar
 # portrait: diluc_happy
 Excellent. It will be a productive outing. Meet me at the winery's main entrance. And dress appropriately; the paths can be muddy depending on the recent rainfall. I will have a spare cloak if required.
 
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
+
 -> END
 
 === diluc_walk_no ===
@@ -99,11 +121,17 @@ Excellent. It will be a productive outing. Meet me at the winery's main entrance
 # portrait: diluc_neutral
 As you wish. Adherence to one's schedule is a virtue. Should you find your routine leading you near the Dawn Winery, do not consider it an intrusion to stop by.
 
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
+
 -> END
 
 === diluc_walk_later ===
 # speaker: Diluc
 # portrait: diluc_thoughtful
 I will be on the grounds until sunset. Inform Adelinde, the head maid, if you decide to come. She will know where to find me. There is no pressure either way.
+
+~ nextChatArea = "ChatAreaZhongli"
+~ nextBranch = "zhongli_intro"
 
 -> END

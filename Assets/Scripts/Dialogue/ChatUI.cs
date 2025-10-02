@@ -7,24 +7,27 @@ using UnityEngine.UI;
 public class ChatUI
 {
     [SerializeField] private GameObject chatPanel;
-    [SerializeField] private ScrollRect chatScrollRect;
-    [SerializeField] private Transform chatContent;
     [SerializeField] private GameObject typingIndicator;
-    [SerializeField] private RectTransform chatAreaRect;
-
-    private float originalChatAreaHeight;
-    private const float CHOICE_PANEL_HEIGHT = 150f;
+    [SerializeField] private ChatAreaManager chatAreaManager;
 
     public void Initialize()
     {
-        chatPanel.SetActive(false);
         typingIndicator.SetActive(false);
-        if (chatAreaRect != null)
-            originalChatAreaHeight = chatAreaRect.rect.height;
+        chatAreaManager.Initialize();
     }
 
     public void Show() => chatPanel.SetActive(true);
     public void Hide() => chatPanel.SetActive(false);
+
+    public void SwitchToChatArea(string areaName)
+    {
+        chatAreaManager.SwitchToChatArea(areaName);
+    }
+
+    public void SwitchToChatAreaViaButton(string areaName)
+    {
+        chatAreaManager.SwitchToChatAreaViaButton(areaName);
+    }
 
     public IEnumerator ShowTypingForDuration(float duration)
     {
@@ -33,17 +36,21 @@ public class ChatUI
         typingIndicator.SetActive(false);
     }
 
-    public IEnumerator ShowTypingIndicator()
+    public GameObject AddMessageToChat(ChatMessage message, string intendedChatArea = null)
     {
-        typingIndicator.SetActive(true);
-        yield return new WaitForSeconds(0.5f);
         typingIndicator.SetActive(false);
-    }
 
-    public GameObject AddMessageToChat(ChatMessage message)
-    {
-        typingIndicator.SetActive(false);
-        GameObject messageUI = message.CreateUIElement(chatContent);
+        string targetArea = message.IsPlayer ? chatAreaManager.CurrentChatAreaName : (intendedChatArea ?? GetSpeakerChatArea(message.Speaker));
+
+        Transform targetContent = chatAreaManager.GetContentForArea(targetArea);
+
+        if (targetContent == null)
+        {
+            Debug.LogWarning($"No content found for area: {targetArea}");
+            return null;
+        }
+
+        GameObject messageUI = message.CreateUIElement(targetContent);
 
         ChatMessageUI chatMessageUI = messageUI.GetComponentInChildren<ChatMessageUI>();
         if (chatMessageUI != null)
@@ -51,9 +58,22 @@ public class ChatUI
             chatMessageUI.Initialize(message);
         }
 
-        ScrollToBottomDelayed();
+        if (chatAreaManager.IsAreaActive(targetArea))
+        {
+            ScrollToBottomDelayed();
+        }
+        else
+        {
+            ChatArea targetChatArea = chatAreaManager.GetChatArea(targetArea);
+        }
 
+        Debug.Log($"Message added to {targetArea} (viewing: {chatAreaManager.CurrentChatAreaName}, isPlayer: {message.IsPlayer})");
         return messageUI;
+    }
+
+    private string GetSpeakerChatArea(string speakerName)
+    {
+        return chatAreaManager.CurrentChatAreaName;
     }
 
     public void AppendToMessage(GameObject messageUI, string additionalText)
@@ -69,11 +89,12 @@ public class ChatUI
 
     public void ScrollToBottom()
     {
-        if (chatScrollRect != null)
+        ScrollRect currentScrollRect = chatAreaManager.GetCurrentScrollRect();
+        if (currentScrollRect != null)
         {
             Canvas.ForceUpdateCanvases();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(chatScrollRect.content);
-            chatScrollRect.verticalNormalizedPosition = 0f;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(currentScrollRect.content);
+            currentScrollRect.verticalNormalizedPosition = 0f;
             Canvas.ForceUpdateCanvases();
         }
     }
@@ -92,10 +113,15 @@ public class ChatUI
 
     public void AdjustForChoices(bool showChoices)
     {
-        if (chatAreaRect != null)
+        chatAreaManager.AdjustCurrentChatAreaForChoices(showChoices);
+    }
+
+    public string GetCurrentChatAreaName()
+    {
+        if (chatAreaManager != null)
         {
-            float targetHeight = showChoices ? originalChatAreaHeight - CHOICE_PANEL_HEIGHT : originalChatAreaHeight;
-            chatAreaRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, targetHeight);
+            return chatAreaManager.CurrentChatAreaName;
         }
+        return "DefaultArea";
     }
 }
