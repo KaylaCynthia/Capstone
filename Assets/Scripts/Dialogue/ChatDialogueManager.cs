@@ -114,7 +114,7 @@ public class ChatDialogueManager : MonoBehaviour
         string nextChatArea = DetermineNextChatArea();
         string nextBranch = DetermineNextBranch();
 
-        //Debug.Log($"Conversation ended. Next area: {nextChatArea}, Next branch: {nextBranch}");
+        Debug.Log($"Conversation ended. Next area: {nextChatArea}, Next branch: {nextBranch}");
 
         if (!string.IsNullOrEmpty(nextBranch))
         {
@@ -178,7 +178,14 @@ public class ChatDialogueManager : MonoBehaviour
 
         if (!isPlayerMessage)
         {
-            yield return StartCoroutine(chatUI.ShowTypingForDuration(message.Length / lettersPerSecond));
+            if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
+            {
+                yield return StartCoroutine(chatUI.ShowTypingForDuration(message.Length / lettersPerSecond, currentConversationChatArea));
+            }
+            else
+            {
+                yield return new WaitForSeconds(message.Length / lettersPerSecond);
+            }
         }
 
         string currentSpeaker = currentState.CurrentSpeaker;

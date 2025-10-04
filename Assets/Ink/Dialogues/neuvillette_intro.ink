@@ -43,8 +43,8 @@ However, the system exists to protect, not to oppress. What specific concerns wo
 The foundation rests on three pillars: Evidence must be as clear as mountain spring water, procedure must flow as predictably as the tides, and judgment must be impartial as rainfall.
 These principles ensure that justice, like water, finds its proper level regardless of the vessel it fills.
 
-VAR nextChatArea = "ChatAreaGeneral"
-VAR nextBranch = "general_chat_start"
+VAR nextChatArea = "ChatAreaDiluc"
+VAR nextBranch = "diluc_1"
 
 -> END
 
@@ -54,8 +54,8 @@ VAR nextBranch = "general_chat_start"
 A recent noteworthy case involved a clockwork meka accused of property damage. The complexity lay in determining intent versus programming error.
 The judgment established new precedents for artificial intelligence in Fontaine law - a ripple that will influence future technological cases.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -65,8 +65,8 @@ The judgment established new precedents for artificial intelligence in Fontaine 
 Fairness is maintained through multiple currents of oversight. Each case is reviewed by junior justices, then senior counsel, before reaching my bench.
 Like multiple filters purifying water, this process removes bias and ensures only clear truth remains for final judgment.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -76,8 +76,8 @@ Like multiple filters purifying water, this process removes bias and ensures onl
 Evidence must meet rigorous standards. Physical proof is examined as a geologist studies rock strata, witness testimony is weighed like precious gems, and documentation must be as consistent as the ocean's rhythm.
 Without such standards, justice becomes as murky as silt-filled waters.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -87,8 +87,8 @@ Without such standards, justice becomes as murky as silt-filled waters.
 Judgments are delivered after careful contemplation of all currents. I consider not only the facts presented, but the broader implications for Fontaine's social waters.
 Each verdict is crafted to restore balance, much as a skilled engineer might redirect water flow to prevent flooding.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -98,8 +98,8 @@ Each verdict is crafted to restore balance, much as a skilled engineer might red
 The appeals process allows for reconsideration when new evidence emerges or procedural errors are discovered. Like water finding new paths around obstacles, the system adapts to ensure no injustice becomes permanent.
 However, appeals require substantial grounds - we cannot have justice flowing in endless circles.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -109,8 +109,8 @@ However, appeals require substantial grounds - we cannot have justice flowing in
 The formality serves a purpose: it elevates the proceedings above petty disputes and reminds all participants of the gravity of justice.
 Think of it as the ceremonial banks that contain a mighty river - they may seem restrictive, but they prevent chaos and destruction.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -120,8 +120,8 @@ Think of it as the ceremonial banks that contain a mighty river - they may seem 
 Consequences are measured carefully. Punishment should fit the transgression like a properly sized vessel contains water - neither overflowing nor insufficient.
 Rehabilitation and restoration are always considered alongside retribution, for justice should heal as well as correct.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END
 
@@ -131,7 +131,7 @@ Rehabilitation and restoration are always considered alongside retribution, for 
 Citizens may seek guidance from legal aides at the Palais Mermonia, much as sailors consult navigation charts. The system, while complex, provides multiple channels for assistance.
 No one should drown in legal complexities simply because they cannot afford expert representation.
 
-~ nextChatArea = "ChatAreaGeneral"
-~ nextBranch = "general_chat_start"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "diluc_1"
 
 -> END

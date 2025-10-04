@@ -13,29 +13,29 @@ public class ChoiceHandler
     [SerializeField] private GameObject[] choiceButtons;
 
     private TextMeshProUGUI[] choicesText;
+    private Animator choicePanelAnimator;
     private System.Action<int> onChoiceSelected;
     private List<Choice> currentChoices;
     private string currentChatAreaForChoices;
     private string currentActiveChatArea;
-    private bool choicesAvailable = false;
 
-    public bool IsChoicePanelOpen => choicePanel.activeInHierarchy;
+    public bool IsChoicePanelOpen => choicePanelAnimator.GetBool("IsOpen");
 
     public void Initialize(System.Action<int> choiceCallback, ChatUI chatUIReference)
     {
         onChoiceSelected = choiceCallback;
-        choicePanel.SetActive(false);
+        choicePanelAnimator = choicePanel.GetComponent<Animator>();
 
         choicesText = new TextMeshProUGUI[choiceButtons.Length];
         for (int i = 0; i < choiceButtons.Length; i++)
         {
             choicesText[i] = choiceButtons[i].GetComponentInChildren<TextMeshProUGUI>();
-            choiceButtons[i].SetActive(false);
         }
 
         inputMessageButton.onClick.AddListener(ToggleChoicePanel);
-
         ChatAreaEvents.OnChatAreaChanged += OnChatAreaChanged;
+
+        choicePanelAnimator.SetBool("IsOpen", false);
     }
 
     public void Cleanup()
@@ -46,21 +46,16 @@ public class ChoiceHandler
     public void ShowChoices(List<Choice> choices, string currentChatArea)
     {
         currentChatAreaForChoices = currentChatArea;
-        currentActiveChatArea = currentChatArea;
-        choicesAvailable = true;
-        inputMessageButton.interactable = true;
         currentChoices = choices;
-
-        Debug.Log($"Choices shown for chat area: {currentChatAreaForChoices}");
     }
 
     private void ToggleChoicePanel()
     {
-        if (choicePanel.activeInHierarchy)
+        if (IsChoicePanelOpen)
         {
             CloseChoicePanel();
         }
-        else
+        else if (IsInCorrectChatArea())
         {
             OpenChoicePanel();
         }
@@ -68,45 +63,30 @@ public class ChoiceHandler
 
     private void OpenChoicePanel()
     {
-        if (choicePanel.activeInHierarchy) return;
+        if (!IsInCorrectChatArea()) return;
 
-        if (!IsInCorrectChatArea() || !choicesAvailable)
-        {
-            Debug.LogWarning($"Cannot show choices - wrong chat area. Current: {currentActiveChatArea}, Required: {currentChatAreaForChoices}, Choices Available: {choicesAvailable}");
-            return;
-        }
-
-        choicePanel.SetActive(true);
-        DisplayChoices(currentChoices);
+        choicePanelAnimator.SetBool("IsOpen", true);
+        DisplayChoices();
         ChatAreaEvents.TriggerChoicePanelStateChanged(true);
     }
 
     private void CloseChoicePanel()
     {
-        choicePanel.SetActive(false);
-        foreach (var button in choiceButtons) button.SetActive(false);
+        choicePanelAnimator.SetBool("IsOpen", false);
         ChatAreaEvents.TriggerChoicePanelStateChanged(false);
     }
 
-    private void DisplayChoices(List<Choice> choices)
+    private void DisplayChoices()
     {
-        if (choices == null) return;
-
-        if (!IsInCorrectChatArea())
-        {
-            //Debug.LogWarning("Cannot display choices - chat area mismatch detected");
-            CloseChoicePanel();
-            return;
-        }
+        if (!IsInCorrectChatArea()) return;
 
         for (int i = 0; i < choiceButtons.Length; i++)
         {
-            bool shouldShow = i < choices.Count;
-            choiceButtons[i].SetActive(shouldShow);
+            bool shouldShow = i < currentChoices.Count;
 
             if (shouldShow)
             {
-                choicesText[i].text = choices[i].text;
+                choicesText[i].text = currentChoices[i].text;
                 SetupButtonListener(choiceButtons[i].GetComponent<Button>(), i);
             }
         }
@@ -121,12 +101,7 @@ public class ChoiceHandler
             if (IsInCorrectChatArea())
             {
                 onChoiceSelected?.Invoke(choiceIndex);
-                choicesAvailable = false;
                 CloseChoicePanel();
-            }
-            else
-            {
-                //Debug.LogWarning($"Choice blocked - current chat area ({currentActiveChatArea}) doesn't match choice area ({currentChatAreaForChoices})");
             }
         });
     }
@@ -136,7 +111,7 @@ public class ChoiceHandler
         EventSystem.current.SetSelectedGameObject(null);
         for (int i = 0; i < choiceButtons.Length; i++)
         {
-            if (choiceButtons[i].activeInHierarchy)
+            if (i < currentChoices.Count)
             {
                 EventSystem.current.SetSelectedGameObject(choiceButtons[i].gameObject);
                 break;
@@ -147,8 +122,6 @@ public class ChoiceHandler
     public void Hide()
     {
         CloseChoicePanel();
-        inputMessageButton.interactable = false;
-        choicesAvailable = false;
         currentChoices = null;
         currentChatAreaForChoices = null;
     }
@@ -157,23 +130,14 @@ public class ChoiceHandler
     {
         currentActiveChatArea = newAreaName;
 
-        if (choicePanel.activeInHierarchy && !IsInCorrectChatArea())
+        if (IsChoicePanelOpen && !IsInCorrectChatArea())
         {
-            //Debug.Log($"Auto-closing choice panel due to chat area switch from {currentChatAreaForChoices} to {newAreaName}");
             CloseChoicePanel();
-        }
-
-        if (choicesAvailable)
-        {
-            inputMessageButton.interactable = IsInCorrectChatArea();
         }
     }
 
     private bool IsInCorrectChatArea()
     {
-        bool isCorrectArea = currentActiveChatArea == currentChatAreaForChoices;
-        bool hasChoices = choicesAvailable && currentChoices != null;
-
-        return isCorrectArea && hasChoices;
+        return currentActiveChatArea == currentChatAreaForChoices && currentChoices != null;
     }
 }

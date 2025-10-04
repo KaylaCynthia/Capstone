@@ -20,7 +20,11 @@ MonoBehaviour:
   - conversationKey: zhongli_intro
     inkFile: {fileID: 4900000, guid: c56f16a5a53a5b749b8c182d4ea8edd4, type: 3}
     nextPossibleBranches:
-    - neuvilette_intro
-  - conversationKey: neuvilette_intro
-    inkFile: {fileID: 4900000, guid: 67ac83b45894126448ffd4cf46da9a42, type: 3}
+    - neuvillette_intro
+  - conversationKey: neuvillette_intro
+    inkFile: {fileID: 4900000, guid: f95f3db2cd09cd5479c86f521419148e, type: 3}
+    nextPossibleBranches:
+    - diluc_1
+  - conversationKey: diluc_1
+    inkFile: {fileID: 4900000, guid: 890ca1de1f902344fa7f7fd4a4386f5a, type: 3}
     nextPossibleBranches: []

@@ -10,10 +10,48 @@ public class ChatUI
     [SerializeField] private GameObject typingIndicator;
     [SerializeField] private ChatAreaManager chatAreaManager;
 
+    private Coroutine currentTypingCoroutine;
+    private string currentTypingChatArea;
+    private bool isTypingInProgress = false;
+
     public void Initialize()
     {
         typingIndicator.SetActive(false);
         chatAreaManager.Initialize();
+
+        ChatAreaEvents.OnChatAreaChanged += OnChatAreaChanged;
+    }
+
+    public void Cleanup()
+    {
+        ChatAreaEvents.OnChatAreaChanged -= OnChatAreaChanged;
+
+        if (currentTypingCoroutine != null)
+        {
+            ChatDialogueManager.GetInstance().StopCoroutine(currentTypingCoroutine);
+            currentTypingCoroutine = null;
+        }
+        isTypingInProgress = false;
+    }
+
+    private void OnChatAreaChanged(string newAreaName)
+    {
+        UpdateTypingIndicatorVisibility();
+    }
+
+    private void UpdateTypingIndicatorVisibility()
+    {
+        if (isTypingInProgress)
+        {
+            bool shouldShow = GetCurrentChatAreaName() == currentTypingChatArea;
+            typingIndicator.SetActive(shouldShow);
+
+            //Debug.Log($"Typing visibility: {shouldShow} | Current: {GetCurrentChatAreaName()} | TypingArea: {currentTypingChatArea} | InProgress: {isTypingInProgress}");
+        }
+        else
+        {
+            typingIndicator.SetActive(false);
+        }
     }
 
     public void Show() => chatPanel.SetActive(true);
@@ -29,18 +67,39 @@ public class ChatUI
         chatAreaManager.SwitchToChatAreaViaButton(areaName);
     }
 
-    public IEnumerator ShowTypingForDuration(float duration)
+    public IEnumerator ShowTypingForDuration(float duration, string targetChatArea)
     {
-        typingIndicator.SetActive(true);
+        currentTypingChatArea = targetChatArea;
+        isTypingInProgress = true;
+
+        //Debug.Log($"Starting typing in {targetChatArea} for {duration} seconds");
+
+        UpdateTypingIndicatorVisibility();
+
         yield return new WaitForSeconds(duration);
+
+        isTypingInProgress = false;
         typingIndicator.SetActive(false);
+        currentTypingCoroutine = null;
+
+        //Debug.Log($"Typing finished in {targetChatArea}");
     }
 
     public GameObject AddMessageToChat(ChatMessage message, string intendedChatArea = null)
     {
-        typingIndicator.SetActive(false);
-
         string targetArea = message.IsPlayer ? chatAreaManager.CurrentChatAreaName : (intendedChatArea ?? GetSpeakerChatArea(message.Speaker));
+
+        if (targetArea == currentTypingChatArea && isTypingInProgress)
+        {
+            isTypingInProgress = false;
+            typingIndicator.SetActive(false);
+
+            if (currentTypingCoroutine != null)
+            {
+                ChatDialogueManager.GetInstance().StopCoroutine(currentTypingCoroutine);
+                currentTypingCoroutine = null;
+            }
+        }
 
         Transform targetContent = chatAreaManager.GetContentForArea(targetArea);
 
@@ -67,7 +126,7 @@ public class ChatUI
             ChatArea targetChatArea = chatAreaManager.GetChatArea(targetArea);
         }
 
-        Debug.Log($"Message added to {targetArea} (viewing: {chatAreaManager.CurrentChatAreaName}, isPlayer: {message.IsPlayer})");
+        //Debug.Log($"Message added to {targetArea} (viewing: {chatAreaManager.CurrentChatAreaName}, isPlayer: {message.IsPlayer})");
         return messageUI;
     }
 
