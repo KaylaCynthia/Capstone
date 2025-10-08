@@ -27,4 +27,13 @@ MonoBehaviour:
     - diluc_1
   - conversationKey: diluc_1
     inkFile: {fileID: 4900000, guid: 890ca1de1f902344fa7f7fd4a4386f5a, type: 3}
-    nextPossibleBranches: []
+    nextPossibleBranches:
+    - next_day
+  - conversationKey: diluc_morning1
+    inkFile: {fileID: 4900000, guid: 3e4b3cb77217049419262f2ae3075d5c, type: 3}
+    nextPossibleBranches:
+    - zhongli_intro
+  - conversationKey: next_day
+    inkFile: {fileID: 0}
+    nextPossibleBranches:
+    - diluc_morning1

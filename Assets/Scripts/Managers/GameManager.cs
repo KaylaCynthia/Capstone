@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     [Header("Dialogue System")]
     [SerializeField] private InkFileManager inkFileManager;
 
+    [Header("Day System")]
+    [SerializeField] private DayManager dayManager;
+
     private bool isPaused = false;
     private bool isSettings = false;
     private string currentSceneName;
@@ -33,10 +36,32 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         currentSceneName = SceneManager.GetActiveScene().name;
-        StartGame();
+        InitializeDaySystem();
+        StartCoroutine(StartGameWithTransition());
     }
 
-    public void StartGame()
+    private void InitializeDaySystem()
+    {
+        if (dayManager != null)
+        {
+            dayManager.SetDay(1); // Start at day 1
+        }
+    }
+
+    private IEnumerator StartGameWithTransition()
+    {
+        // Show first Day 1 transition (fade out only)
+        DayManager dayManager = DayManager.GetInstance();
+        if (dayManager != null)
+        {
+            yield return StartCoroutine(dayManager.ShowFirstDayTransition());
+        }
+
+        // Start the first conversation AFTER transition completes
+        StartFirstConversation();
+    }
+
+    private void StartFirstConversation()
     {
         if (inkFileManager != null)
         {

@@ -19,8 +19,8 @@ My offer from earlier still stands, though its form can be adapted. Having spoke
 === diluc_renewed_offer ===
 # speaker: Diluc
 # portrait: diluc_happy
-~ nextChatArea = "ChatAreaFinal"
-~ nextBranch = "end_of_day"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "next_day"
 Good. I anticipated you might. I've taken the liberty of preparing the private room upstairs at the Angel's Share. No business, no grand theories—just a quiet moment. The grape juice is chilled, and I've even procured some non-alcoholic cider from Mondstadt's finest orchards, should you prefer a change.
 
 -> END
@@ -28,8 +28,8 @@ Good. I anticipated you might. I've taken the liberty of preparing the private r
 === diluc_distraction ===
 # speaker: Diluc
 # portrait: diluc_thoughtful
-~ nextChatArea = "ChatAreaFinal"
-~ nextBranch = "end_of_day"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "next_day"
 Understood. Sometimes the mind needs a rest. I was about to conduct a routine patrol along the Whispering Woods border. It is a simple, physical task that requires focus on one's immediate surroundings. The company would be welcome, and it is far removed from the burdens of archons and sovereigns.
 
 + [A patrol sounds perfect. Let's go.] -> diluc_patrol_yes
@@ -38,8 +38,8 @@ Understood. Sometimes the mind needs a rest. I was about to conduct a routine pa
 === diluc_alone ===
 # speaker: Diluc
 # portrait: diluc_neutral
-~ nextChatArea = "ChatAreaFinal"
-~ nextBranch = "end_of_day"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "next_day"
 I respect that. Solitude can be the most effective counsel. Remember, the Winery and the tavern are sanctuaries should you need one. Do not stand on ceremony.
 
 -> END
@@ -47,8 +47,8 @@ I respect that. Solitude can be the most effective counsel. Remember, the Winery
 === diluc_patrol_yes ===
 # speaker: Diluc
 # portrait: diluc_happy
-~ nextChatArea = "ChatAreaFinal"
-~ nextBranch = "end_of_day"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "next_day"
 Then it's settled. Meet me at the city's main gate in ten minutes. Bring your weapon. While the path is generally safe, it pays to be prepared. We can speak, or not speak, as you wish.
 
 -> END
@@ -56,8 +56,8 @@ Then it's settled. Meet me at the city's main gate in ten minutes. Bring your we
 === diluc_tavern_quiet ===
 # speaker: Diluc
 # portrait: diluc_thoughtful
-~ nextChatArea = "ChatAreaFinal"
-~ nextBranch = "end_of_day"
+~ nextChatArea = "ChatAreaDiluc"
+~ nextBranch = "next_day"
 A quiet corner is already reserved. I will instruct Charles that you are not to be disturbed. I will join you briefly to ensure you have what you need, but I will not impose. The space is yours for as long as you require it.
 
 -> END

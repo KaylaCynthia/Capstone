@@ -97,7 +97,8 @@ public class ChatDialogueManager : MonoBehaviour
     {
         if (!currentStory.canContinue)
         {
-            HandleEndOfConversation();
+            Debug.Log("End of Conversation reached.");
+            StartCoroutine(HandleEndOfConversation());
             return;
         }
 
@@ -109,14 +110,24 @@ public class ChatDialogueManager : MonoBehaviour
         StartCoroutine(DisplayMessage(nextLine, isPlayerMessage));
     }
 
-    private void HandleEndOfConversation()
+    private IEnumerator HandleEndOfConversation()
     {
         string nextChatArea = DetermineNextChatArea();
         string nextBranch = DetermineNextBranch();
 
-        Debug.Log($"Conversation ended. Next area: {nextChatArea}, Next branch: {nextBranch}");
+        //Debug.Log($"Conversation ended. Next area: {nextChatArea}, Next branch: {nextBranch}");
 
-        if (!string.IsNullOrEmpty(nextBranch))
+        if (inkFileManager.IsDayTransitionBranch(nextBranch))
+        {
+            yield return StartCoroutine(HandleDayTransition());
+
+            if (DialogueIsPlaying)
+            {
+                //Debug.Log("New conversation started after day transition, exiting HandleEndOfConversation");
+                yield break;
+            }
+        }
+        else if (!string.IsNullOrEmpty(nextBranch))
         {
             inkFileManager.MoveToNextBranch(nextBranch);
             TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
@@ -124,15 +135,59 @@ public class ChatDialogueManager : MonoBehaviour
             if (nextInkFile != null)
             {
                 currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
-
-                //Debug.Log($"Moving to next conversation in area: {currentConversationChatArea} (player remains in: {chatUI.GetCurrentChatAreaName()})");
                 EnterDialogueMode(nextInkFile);
-                return;
+                yield break;
             }
         }
 
-        //Debug.Log("End of conversation reached.");
+        //Debug.Log("No next branch found, exiting dialogue mode");
         StartCoroutine(ExitDialogueMode());
+    }
+
+    private IEnumerator HandleDayTransition()
+    {
+        lastMessageFromUser.Clear();
+
+        DayManager dayManager = DayManager.GetInstance();
+        if (dayManager != null)
+        {
+            dayManager.StartNextDay();
+
+            yield return new WaitForSeconds(dayManager.TransitionDuration + 0.5f);
+
+            string nextChatArea = DetermineNextChatArea();
+            string nextBranch = DetermineNextBranchAfterDayTransition();
+
+            //Debug.Log(nextChatArea + ", " + nextBranch);
+
+            if (!string.IsNullOrEmpty(nextBranch))
+            {
+                //Debug.Log("Moving to next branch after day transition: " + nextBranch);
+                inkFileManager.MoveToNextBranch(nextBranch);
+                TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
+
+                if (nextInkFile != null)
+                {
+                    currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
+                    EnterDialogueMode(nextInkFile);
+                    yield break;
+                }
+            }
+        }
+
+        StartCoroutine(ExitDialogueMode());
+    }
+
+    private string DetermineNextBranchAfterDayTransition()
+    {
+        int currentDay = DayManager.GetInstance().GetCurrentDay();
+
+        switch (currentDay)
+        {
+            case 2: return "diluc_morning1";
+            case 3: return "day3_morning";
+            default: return "default_morning";
+        }
     }
 
     private string DetermineNextChatArea()
@@ -295,7 +350,5 @@ public class ChatDialogueManager : MonoBehaviour
         chatUI.Hide();
         choiceHandler.Hide();
         lastMessageFromUser.Clear();
-
-        GameManager.GetInstance()?.OnConversationComplete();
     }
 }

@@ -64,7 +64,7 @@ public class ChatAreaManager
     private void OnChoicePanelStateChanged(bool isOpen)
     {
         choicePanelIsOpen = isOpen;
-        Debug.Log($"Choice panel is now {(isOpen ? "open" : "closed")}. Chat area switching: {(isOpen ? "disabled" : "enabled")}");
+        //Debug.Log($"Choice panel is now {(isOpen ? "open" : "closed")}. Chat area switching: {(isOpen ? "disabled" : "enabled")}");
     }
 
     public ChatArea GetChatArea(string areaName)

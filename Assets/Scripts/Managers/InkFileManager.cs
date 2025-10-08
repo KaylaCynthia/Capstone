@@ -41,6 +41,7 @@ public class InkFileManager : ScriptableObject
     {
         if (conversationBranches.Exists(b => b.conversationKey == nextBranchKey))
         {
+            Debug.Log("Moved to branch " +  nextBranchKey);
             currentConversationKey = nextBranchKey;
         }
         else
@@ -52,5 +53,10 @@ public class InkFileManager : ScriptableObject
     public bool HasNextBranches()
     {
         return GetNextPossibleBranches().Count > 0;
+    }
+
+    public bool IsDayTransitionBranch(string branchKey)
+    {
+        return branchKey == "next_day";
     }
 }

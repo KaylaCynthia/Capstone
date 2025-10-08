@@ -60,6 +60,7 @@ public class ChatUI
     public void SwitchToChatArea(string areaName)
     {
         chatAreaManager.SwitchToChatArea(areaName);
+        ScrollToBottom();
     }
 
     public void SwitchToChatAreaViaButton(string areaName)
