@@ -1,11 +1,13 @@
+using System;
+
 public static class ChatAreaEvents
 {
-    public static event System.Action<string> OnChatAreaChanged;
-    public static event System.Action<bool> OnChoicePanelStateChanged;
+    public static event Action<string> OnChatAreaChanged;
+    public static event Action<bool> OnChoicePanelStateChanged;
 
-    public static void TriggerChatAreaChanged(string newAreaName)
+    public static void TriggerChatAreaChanged(string areaName)
     {
-        OnChatAreaChanged?.Invoke(newAreaName);
+        OnChatAreaChanged?.Invoke(areaName);
     }
 
     public static void TriggerChoicePanelStateChanged(bool isOpen)

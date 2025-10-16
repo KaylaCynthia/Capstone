@@ -1,18 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum ChatAreaType { DM, Server }
+
 public class ChatArea : MonoBehaviour
 {
     [SerializeField] private string areaName;
+    [SerializeField] private ChatAreaType areaType;
     [SerializeField] private Transform content;
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private RectTransform chatAreaRect;
-    [SerializeField] private GameObject activeIndicator;
 
     private float originalChatAreaHeight;
     private const float CHOICE_PANEL_HEIGHT = 150f;
 
     public string AreaName => areaName;
+    public ChatAreaType AreaType => areaType;
     public Transform Content => content;
     public ScrollRect ScrollRect => scrollRect;
 
@@ -40,9 +43,6 @@ public class ChatArea : MonoBehaviour
     {
         Show();
 
-        if (activeIndicator != null)
-            activeIndicator.SetActive(true);
-
         if (scrollRect != null)
         {
             scrollRect.enabled = true;
@@ -53,9 +53,6 @@ public class ChatArea : MonoBehaviour
 
     public void SetAsInactive()
     {
-        if (activeIndicator != null)
-            activeIndicator.SetActive(false);
-
         if (scrollRect != null)
         {
             scrollRect.enabled = false;

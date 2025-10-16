@@ -1,10 +1,55 @@
 VAR nextChatArea = ""
 VAR nextBranch = ""
 
-# speaker: Somebody
-# portrait: Somebody_hehe
-(Diluc Went Online)
-(Just reading the text messages while scrolling on tiktok on the other half of the screen, wondering what the group is so excited in talking about)
+# speaker: Player
+# portrait: player_portrait
++[hi, is this 12_sunny?]
+
+- # speaker: Sunny
+# portrait: sunny_portrait
+hey, heyy!
+yep, it's me
+
+# speaker: Player
+# portrait: player_portrait
+
++[sooo...]
+- i didn't expect that other people would actually relate to me
+
+# speaker: Sunny
+# portrait: sunny_excited
+actually, a lot of people do!
+well... especially the ones who actually care about what they're doing.
+you said you always feel like you never deserve the praise you got from your coworkers, right?
+
+# speaker: Player
+# portrait: player_portrait
++[yea, every time i get praised, i get so insecure that they will one day see that i'm not all that great]
+
+# speaker: Sunny
+# portrait: sunny_comforting
+i totally get that <3
+it's okay! It's actually not insecurity, it's awareness
+seeing through the illusion of success system, you know?
+
+# speaker: Player
+# portrait: player_portrait
++[that's... a cool way to put it, i guess]
+
+# speaker: Sunny
+# portrait: sunny_happy
+hahaha
+i used to write about it in my journal all the time
+it feels like there's no where for me to talk about this stuff
+until i found a server
+we talk about stuff like this all the time
+it's more like a small disscussion group, honestly
+not therapy or anything
+just a group of people that question things
+
+# speaker: Player
+# portrait: player_portrait
++[oh yeah? what kind of things?]
 
 -> diluc_conversation
 

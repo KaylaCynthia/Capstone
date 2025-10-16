@@ -46,7 +46,24 @@ public class ChatUI
             bool shouldShow = GetCurrentChatAreaName() == currentTypingChatArea;
             typingIndicator.SetActive(shouldShow);
 
-            //Debug.Log($"Typing visibility: {shouldShow} | Current: {GetCurrentChatAreaName()} | TypingArea: {currentTypingChatArea} | InProgress: {isTypingInProgress}");
+            if (shouldShow)
+            {
+                ChatArea currentArea = chatAreaManager.CurrentChatArea;
+                TextMeshProUGUI typingText = typingIndicator.GetComponentInChildren<TextMeshProUGUI>();
+
+                if (typingText != null && currentArea != null)
+                {
+                    if (currentArea.AreaType == ChatAreaType.Server)
+                    {
+                        typingText.text = "Somebody is typing...";
+                    }
+                    else
+                    {
+                        string currentPerson = currentArea.AreaName.Replace("ChatArea", "");
+                        typingText.text = $"{currentPerson} is typing...";
+                    }
+                }
+            }
         }
         else
         {
@@ -73,8 +90,6 @@ public class ChatUI
         currentTypingChatArea = targetChatArea;
         isTypingInProgress = true;
 
-        //Debug.Log($"Starting typing in {targetChatArea} for {duration} seconds");
-
         UpdateTypingIndicatorVisibility();
 
         yield return new WaitForSeconds(duration);
@@ -82,8 +97,6 @@ public class ChatUI
         isTypingInProgress = false;
         typingIndicator.SetActive(false);
         currentTypingCoroutine = null;
-
-        //Debug.Log($"Typing finished in {targetChatArea}");
     }
 
     public GameObject AddMessageToChat(ChatMessage message, string intendedChatArea = null)
@@ -110,6 +123,12 @@ public class ChatUI
             return null;
         }
 
+        if (message.IsPlayer && string.IsNullOrEmpty(message.Message))
+        {
+            Debug.LogWarning("Attempted to create empty player message, skipping.");
+            return null;
+        }
+
         GameObject messageUI = message.CreateUIElement(targetContent);
 
         ChatMessageUI chatMessageUI = messageUI.GetComponentInChildren<ChatMessageUI>();
@@ -124,10 +143,12 @@ public class ChatUI
         }
         else
         {
-            ChatArea targetChatArea = chatAreaManager.GetChatArea(targetArea);
+            if (!message.IsPlayer)
+            {
+                ChatNotificationEvents.TriggerNewMessage(targetArea);
+            }
         }
 
-        //Debug.Log($"Message added to {targetArea} (viewing: {chatAreaManager.CurrentChatAreaName}, isPlayer: {message.IsPlayer})");
         return messageUI;
     }
 

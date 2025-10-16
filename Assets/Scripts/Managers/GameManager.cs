@@ -8,16 +8,17 @@ public class GameManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private NameDataUI nameDataUI;
 
-    [Header("Dialogue System")]
-    [SerializeField] private InkFileManager inkFileManager;
-
-    [Header("Day System")]
+    [Header("Dependencies")]
     [SerializeField] private DayManager dayManager;
+    [SerializeField] private AppSystemManager appSystemManager;
+    [SerializeField] private GameStateManager gameStateManager;
 
     private bool isPaused = false;
     private bool isSettings = false;
     private string currentSceneName;
+    private bool hasPlayerSetName = false;
 
     private static GameManager instance;
     public static GameManager GetInstance() => instance;
@@ -37,6 +38,58 @@ public class GameManager : MonoBehaviour
     {
         currentSceneName = SceneManager.GetActiveScene().name;
         InitializeDaySystem();
+
+        CheckPlayerName();
+    }
+
+    private void CheckPlayerName()
+    {
+        string savedName = PlayerPrefs.GetString("PlayerName", "");
+        if (PlayerData.IsValidPlayerName(savedName))
+        {
+            hasPlayerSetName = true;
+            StartCoroutine(StartGameWithTransition());
+        }
+        else
+        {
+            ShowNameInputPanel();
+        }
+    }
+
+    private void ShowNameInputPanel()
+    {
+        if (nameDataUI != null)
+        {
+            Debug.Log("Showing name input panel");
+            nameDataUI.Show(OnNameConfirmed, OnNamePanelClosed);
+        }
+        else
+        {
+            Debug.LogError("NameDataPanel reference is not set in GameManager!");
+            UseDefaultNameAndStart();
+        }
+    }
+
+    private void OnNameConfirmed()
+    {
+        Debug.Log("Player name confirmed");
+        hasPlayerSetName = true;
+        StartCoroutine(StartGameWithTransition());
+    }
+
+    private void OnNamePanelClosed()
+    {
+        if (!hasPlayerSetName)
+        {
+            Debug.Log("Name panel closed, using default name");
+            UseDefaultNameAndStart();
+        }
+    }
+
+    private void UseDefaultNameAndStart()
+    {
+        PlayerDataManager.GetInstance().SetPlayerName("Player");
+        hasPlayerSetName = true;
         StartCoroutine(StartGameWithTransition());
     }
 
@@ -44,38 +97,23 @@ public class GameManager : MonoBehaviour
     {
         if (dayManager != null)
         {
-            dayManager.SetDay(1); // Start at day 1
+            dayManager.SetDay(1);
         }
     }
 
     private IEnumerator StartGameWithTransition()
     {
-        // Show first Day 1 transition (fade out only)
-        DayManager dayManager = DayManager.GetInstance();
         if (dayManager != null)
         {
             yield return StartCoroutine(dayManager.ShowFirstDayTransition());
         }
 
-        // Start the first conversation AFTER transition completes
-        StartFirstConversation();
-    }
+        yield return null;
 
-    private void StartFirstConversation()
-    {
-        if (inkFileManager != null)
+        if (appSystemManager != null)
         {
-            ChatDialogueManager dialogueManager = ChatDialogueManager.GetInstance();
-            if (dialogueManager != null)
-            {
-                dialogueManager.StartConversation("diluc_intro", "ChatAreaDiluc");
-            }
+            appSystemManager.LaunchEchocordImmediately();
         }
-    }
-
-    public void OnConversationComplete()
-    {
-        Debug.Log("Conversation completed!");
     }
 
     private void Update()
@@ -84,7 +122,14 @@ public class GameManager : MonoBehaviour
         {
             if (currentSceneName == "GameScene")
             {
-                Pause();
+                if (appSystemManager != null && appSystemManager.IsAppOpen)
+                {
+                    appSystemManager.ReturnToHomeScreen();
+                }
+                else
+                {
+                    Pause();
+                }
             }
         }
     }
@@ -109,5 +154,23 @@ public class GameManager : MonoBehaviour
     public void LoadMainMenu()
     {
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void ShowNameChangePanel()
+    {
+        if (nameDataUI != null)
+        {
+            nameDataUI.Show();
+        }
+    }
+
+    public bool HasPlayerSetName()
+    {
+        return hasPlayerSetName;
+    }
+
+    public string GetPlayerName()
+    {
+        return PlayerDataManager.GetInstance().PlayerData.PlayerName;
     }
 }

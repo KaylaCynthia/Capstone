@@ -26,6 +26,7 @@ public class ChatDialogueManager : MonoBehaviour
     private DialogueParser dialogueParser;
     private Dictionary<string, GameObject> lastMessageFromUser;
     private string currentConversationChatArea;
+    private GameObject currentPlayerMessageUI = null;
 
     private static ChatDialogueManager instance;
     public static ChatDialogueManager GetInstance() => instance;
@@ -53,20 +54,27 @@ public class ChatDialogueManager : MonoBehaviour
         currentState = new DialogueState();
         lastMessageFromUser = new Dictionary<string, GameObject>();
         Initialize();
-        chatUI.SwitchToChatArea("ChatAreaDiluc");
     }
 
     private void Initialize()
     {
         DialogueIsPlaying = false;
         chatUI.Initialize();
-        choiceHandler.Initialize(MakeChoice, chatUI);
+
+        if (choiceHandler != null)
+        {
+            choiceHandler.Initialize(MakeChoice, chatUI);
+        }
+        else
+        {
+            Debug.LogError("ChoiceHandler reference is null in ChatDialogueManager!");
+        }
+
         lastMessageFromUser.Clear();
     }
 
     public void StartConversation(string conversationKey, string chatAreaName)
     {
-        //Debug.Log($"Starting conversation: {conversationKey} in chat area: {chatAreaName}");
         if (inkFileManager == null)
         {
             Debug.LogError("InkFileManager is not assigned!");
@@ -80,7 +88,6 @@ public class ChatDialogueManager : MonoBehaviour
 
         if (inkFile != null)
         {
-            //Debug.Log($"Starting conversation with Ink file: {inkFile.name}. Messages will go to: {currentConversationChatArea}");
             EnterDialogueMode(inkFile);
         }
     }
@@ -103,133 +110,38 @@ public class ChatDialogueManager : MonoBehaviour
         }
 
         string nextLine = currentStory.Continue();
-
         dialogueParser.HandleTags(currentStory.currentTags, currentState);
 
         bool isPlayerMessage = currentState.IsPlayerSpeaking;
         StartCoroutine(DisplayMessage(nextLine, isPlayerMessage));
     }
 
-    private IEnumerator HandleEndOfConversation()
-    {
-        string nextChatArea = DetermineNextChatArea();
-        string nextBranch = DetermineNextBranch();
-
-        //Debug.Log($"Conversation ended. Next area: {nextChatArea}, Next branch: {nextBranch}");
-
-        if (inkFileManager.IsDayTransitionBranch(nextBranch))
-        {
-            yield return StartCoroutine(HandleDayTransition());
-
-            if (DialogueIsPlaying)
-            {
-                //Debug.Log("New conversation started after day transition, exiting HandleEndOfConversation");
-                yield break;
-            }
-        }
-        else if (!string.IsNullOrEmpty(nextBranch))
-        {
-            inkFileManager.MoveToNextBranch(nextBranch);
-            TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
-
-            if (nextInkFile != null)
-            {
-                currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
-                EnterDialogueMode(nextInkFile);
-                yield break;
-            }
-        }
-
-        //Debug.Log("No next branch found, exiting dialogue mode");
-        StartCoroutine(ExitDialogueMode());
-    }
-
-    private IEnumerator HandleDayTransition()
-    {
-        lastMessageFromUser.Clear();
-
-        DayManager dayManager = DayManager.GetInstance();
-        if (dayManager != null)
-        {
-            dayManager.StartNextDay();
-
-            yield return new WaitForSeconds(dayManager.TransitionDuration + 0.5f);
-
-            string nextChatArea = DetermineNextChatArea();
-            string nextBranch = DetermineNextBranchAfterDayTransition();
-
-            //Debug.Log(nextChatArea + ", " + nextBranch);
-
-            if (!string.IsNullOrEmpty(nextBranch))
-            {
-                //Debug.Log("Moving to next branch after day transition: " + nextBranch);
-                inkFileManager.MoveToNextBranch(nextBranch);
-                TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
-
-                if (nextInkFile != null)
-                {
-                    currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
-                    EnterDialogueMode(nextInkFile);
-                    yield break;
-                }
-            }
-        }
-
-        StartCoroutine(ExitDialogueMode());
-    }
-
-    private string DetermineNextBranchAfterDayTransition()
-    {
-        int currentDay = DayManager.GetInstance().GetCurrentDay();
-
-        switch (currentDay)
-        {
-            case 2: return "diluc_morning1";
-            case 3: return "day3_morning";
-            default: return "default_morning";
-        }
-    }
-
-    private string DetermineNextChatArea()
-    {
-        if (currentStory.variablesState.GlobalVariableExistsWithName("nextChatArea"))
-        {
-            object nextChatAreaObj = currentStory.variablesState["nextChatArea"];
-            return nextChatAreaObj?.ToString();
-        }
-        return null;
-    }
-
-    public void SwitchToChatArea(string areaName)
-    {
-        chatUI.SwitchToChatArea(areaName);
-    }
-
-    private string DetermineNextBranch()
-    {
-        if (currentStory.variablesState.GlobalVariableExistsWithName("nextBranch"))
-        {
-            object nextBranchObj = currentStory.variablesState["nextBranch"];
-            return nextBranchObj?.ToString();
-        }
-
-        List<string> possibleBranches = inkFileManager.GetNextPossibleBranches();
-
-        if (possibleBranches.Count == 1)
-        {
-            return possibleBranches[0];
-        }
-        else if (possibleBranches.Count > 1)
-        {
-            return possibleBranches[0];
-        }
-
-        return null;
-    }
-
     private IEnumerator DisplayMessage(string message, bool isPlayerMessage)
     {
         currentState.SetWaitingForInput(false);
+
+        if (isPlayerMessage && currentPlayerMessageUI != null)
+        {
+            Debug.Log($"Appending player message: {message}");
+
+            float delay = message.Length / lettersPerSecond;
+            yield return new WaitForSeconds(delay);
+
+            yield return StartCoroutine(AppendToPlayerMessage(message));
+
+            if (currentStory.canContinue && currentStory.currentChoices.Count == 0)
+            {
+                yield return new WaitForSeconds(1f);
+                ContinueStory();
+            }
+            else if (currentStory.currentChoices.Count > 0)
+            {
+                yield return new WaitForSeconds(0.5f);
+                ShowChoicesIfInCorrectArea();
+            }
+
+            yield break;
+        }
 
         if (!isPlayerMessage)
         {
@@ -241,6 +153,10 @@ public class ChatDialogueManager : MonoBehaviour
             {
                 yield return new WaitForSeconds(message.Length / lettersPerSecond);
             }
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
         }
 
         string currentSpeaker = currentState.CurrentSpeaker;
@@ -256,17 +172,20 @@ public class ChatDialogueManager : MonoBehaviour
         else
         {
             ChatMessage chatMessage = ChatMessageFactory.Create(message, currentState);
-
             messageUI = chatUI.AddMessageToChat(chatMessage, currentConversationChatArea);
 
-            if (!isPlayerMessage)
+            if (messageUI != null)
             {
-                lastMessageFromUser[currentSpeaker] = messageUI;
-            }
-            else
-            {
-                lastMessageFromUser.Remove("You");
-                lastMessageFromUser.Remove(currentSpeaker);
+                if (!isPlayerMessage)
+                {
+                    lastMessageFromUser[currentSpeaker] = messageUI;
+                }
+                else
+                {
+                    currentPlayerMessageUI = messageUI;
+                    lastMessageFromUser.Remove("You");
+                    lastMessageFromUser.Remove(currentSpeaker);
+                }
             }
         }
 
@@ -280,22 +199,38 @@ public class ChatDialogueManager : MonoBehaviour
         if (currentStory.currentChoices.Count > 0)
         {
             yield return new WaitForSeconds(0.5f);
-
-            if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
-            {
-                choiceHandler.ShowChoices(currentStory.currentChoices, currentConversationChatArea);
-            }
-            else
-            {
-                //Debug.Log($"Choices available in {currentConversationChatArea}, but player is in {chatUI.GetCurrentChatAreaName()}. Waiting for player to switch...");
-                yield return WaitForPlayerToSwitchToCorrectArea();
-            }
+            ShowChoicesIfInCorrectArea();
         }
         else
         {
             choiceHandler.Hide();
-            yield return new WaitForSeconds(1f);
-            ContinueStory();
+
+            if (currentStory.canContinue)
+            {
+                yield return new WaitForSeconds(1f);
+                ContinueStory();
+            }
+        }
+    }
+
+    private IEnumerator AppendToPlayerMessage(string additionalText)
+    {
+        if (currentPlayerMessageUI != null)
+        {
+            chatUI.AppendToMessage(currentPlayerMessageUI, "\n" + additionalText);
+        }
+        yield return null;
+    }
+
+    private void ShowChoicesIfInCorrectArea()
+    {
+        if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
+        {
+            choiceHandler.ShowChoices(currentStory.currentChoices, currentConversationChatArea);
+        }
+        else
+        {
+            StartCoroutine(WaitForPlayerToSwitchToCorrectArea());
         }
     }
 
@@ -304,13 +239,8 @@ public class ChatDialogueManager : MonoBehaviour
         while (chatUI.GetCurrentChatAreaName() != currentConversationChatArea)
         {
             yield return null;
-
-            if (!DialogueIsPlaying)
-            {
-                yield break;
-            }
+            if (!DialogueIsPlaying) yield break;
         }
-
         choiceHandler.ShowChoices(currentStory.currentChoices, currentConversationChatArea);
     }
 
@@ -319,8 +249,11 @@ public class ChatDialogueManager : MonoBehaviour
         if (currentStory.currentChoices.Count > choiceIndex)
         {
             string choiceText = currentStory.currentChoices[choiceIndex].text;
+
             DisplayPlayerChoice(choiceText);
+
             currentStory.ChooseChoiceIndex(choiceIndex);
+
             ContinueStory();
         }
     }
@@ -337,10 +270,102 @@ public class ChatDialogueManager : MonoBehaviour
             {
                 chatMessageUI.SetMessageText(choiceText);
             }
+            currentPlayerMessageUI = messageUI;
         }
 
         chatUI.ScrollToBottom();
         lastMessageFromUser.Clear();
+    }
+
+    private IEnumerator HandleEndOfConversation()
+    {
+        string nextChatArea = DetermineNextChatArea();
+        string nextBranch = DetermineNextBranch();
+
+        if (inkFileManager.IsDayTransitionBranch(nextBranch))
+        {
+            yield return StartCoroutine(HandleDayTransition());
+            if (DialogueIsPlaying) yield break;
+        }
+        else if (!string.IsNullOrEmpty(nextBranch))
+        {
+            inkFileManager.MoveToNextBranch(nextBranch);
+            TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
+            if (nextInkFile != null)
+            {
+                currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
+                EnterDialogueMode(nextInkFile);
+                yield break;
+            }
+        }
+
+        StartCoroutine(ExitDialogueMode());
+    }
+
+    private IEnumerator HandleDayTransition()
+    {
+        lastMessageFromUser.Clear();
+        currentState.Reset();
+        currentPlayerMessageUI = null;
+
+        DayManager dayManager = DayManager.GetInstance();
+        if (dayManager != null)
+        {
+            dayManager.StartNextDay();
+            yield return new WaitForSeconds(dayManager.TransitionDuration + 0.5f);
+
+            string nextChatArea = DetermineNextChatArea();
+            string nextBranch = DetermineNextBranchAfterDayTransition();
+
+            if (!string.IsNullOrEmpty(nextBranch))
+            {
+                inkFileManager.MoveToNextBranch(nextBranch);
+                TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
+                if (nextInkFile != null)
+                {
+                    currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
+                    EnterDialogueMode(nextInkFile);
+                    yield break;
+                }
+            }
+        }
+
+        StartCoroutine(ExitDialogueMode());
+    }
+
+    private string DetermineNextBranchAfterDayTransition()
+    {
+        int currentDay = DayManager.GetInstance().GetCurrentDay();
+        switch (currentDay)
+        {
+            case 2: return "sunny_day2";
+            case 3: return "sunny_day3";
+            default: return "sunny_intro";
+        }
+    }
+
+    private string DetermineNextChatArea()
+    {
+        if (currentStory.variablesState.GlobalVariableExistsWithName("nextChatArea"))
+        {
+            object nextChatAreaObj = currentStory.variablesState["nextChatArea"];
+            return nextChatAreaObj?.ToString();
+        }
+        return null;
+    }
+
+    private string DetermineNextBranch()
+    {
+        if (currentStory.variablesState.GlobalVariableExistsWithName("nextBranch"))
+        {
+            object nextBranchObj = currentStory.variablesState["nextBranch"];
+            return nextBranchObj?.ToString();
+        }
+
+        List<string> possibleBranches = inkFileManager.GetNextPossibleBranches();
+        if (possibleBranches.Count == 1) return possibleBranches[0];
+        else if (possibleBranches.Count > 1) return possibleBranches[0];
+        return null;
     }
 
     private IEnumerator ExitDialogueMode()
@@ -350,5 +375,12 @@ public class ChatDialogueManager : MonoBehaviour
         chatUI.Hide();
         choiceHandler.Hide();
         lastMessageFromUser.Clear();
+        currentState.Reset();
+        currentPlayerMessageUI = null;
+    }
+
+    public void SwitchToChatArea(string areaName)
+    {
+        chatUI.SwitchToChatArea(areaName);
     }
 }

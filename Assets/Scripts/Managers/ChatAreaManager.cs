@@ -18,12 +18,30 @@ public class ChatAreaManager
     {
         foreach (Transform child in chatAreasParent)
         {
+            if (child.name == "background")
+            {
+                continue;
+            }
             ChatArea area = child.GetComponent<ChatArea>();
             if (area != null)
             {
                 chatAreas[area.AreaName] = area;
                 area.Initialize();
             }
+        }
+
+        if (chatAreas.Count > 0)
+        {
+            foreach (var area in chatAreas)
+            {
+                currentChatAreaName = area.Key;
+                area.Value.SetAsActive();
+                break;
+            }
+        }
+        else
+        {
+            Debug.LogError("No chat areas found during initialization!");
         }
 
         ChatAreaEvents.OnChoicePanelStateChanged += OnChoicePanelStateChanged;
@@ -38,7 +56,7 @@ public class ChatAreaManager
     {
         if (choicePanelIsOpen)
         {
-            //Debug.LogWarning("Cannot switch chat areas while choice panel is open");
+            Debug.LogWarning("Cannot switch chat areas while choice panel is open");
             return;
         }
 
@@ -51,6 +69,12 @@ public class ChatAreaManager
         {
             currentChatAreaName = areaName;
             chatAreas[areaName].SetAsActive();
+            
+            ChatNotificationEvents.TriggerChatAreaViewed(areaName);
+        }
+        else
+        {
+            Debug.LogWarning($"Chat area not found: {areaName}");
         }
 
         ChatAreaEvents.TriggerChatAreaChanged(areaName);

@@ -17,6 +17,8 @@ public class DayManager : MonoBehaviour
     private bool isTransitioning = false;
     private bool isFirstTransition = true;
 
+    public System.Action OnTransitionComplete;
+
     private static DayManager instance;
     public static DayManager GetInstance() => instance;
 
@@ -54,6 +56,11 @@ public class DayManager : MonoBehaviour
 
     public int GetCurrentDay() => currentDay;
 
+    public void ResetDailyStats()
+    {
+        TimeManager.GetInstance()?.ResetToMorning();
+    }
+
     private IEnumerator DayTransitionCoroutine(bool isFirstTransition)
     {
         isTransitioning = true;
@@ -78,7 +85,11 @@ public class DayManager : MonoBehaviour
         dayTransitionPanel.SetActive(false);
         isTransitioning = false;
 
+        ResetDailyStats();
+
         DayEvents.TriggerDayChanged(currentDay);
+
+        OnTransitionComplete?.Invoke();
     }
 
     private void SetAlpha(float alpha)
