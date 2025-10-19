@@ -51,6 +51,7 @@ public class StatsManager : MonoBehaviour
         if (actionEffect.actionName != "Sleep")
         {
             currentStats.actionsPerformedToday++;
+            TimeManager.GetInstance().AdvanceTime();
         }
 
         if (actionEffect.cashChange != 0)
@@ -60,11 +61,6 @@ public class StatsManager : MonoBehaviour
 
             if (transactionHistory.Count > 5)
                 transactionHistory.RemoveAt(0);
-        }
-
-        if (actionEffect.actionName != "Sleep")
-        {
-            TimeManager.GetInstance().AdvanceTime();
         }
 
         StatsEvents.TriggerStatsChanged(currentStats);

@@ -144,14 +144,14 @@ public class ChoiceHandler
         DisplayChoices();
         TriggerShowAnimation();
         ChatAreaEvents.TriggerChoicePanelStateChanged(true);
-        Debug.Log("Choice panel opened");
+        //Debug.Log("Choice panel opened");
     }
 
     private void CloseChoicePanel()
     {
         TriggerCloseAnimation();
         ChatAreaEvents.TriggerChoicePanelStateChanged(false);
-        Debug.Log("Choice panel closed");
+        //Debug.Log("Choice panel closed");
     }
 
     private void TriggerShowAnimation()

@@ -31,6 +31,7 @@ public class AppSystemManager : MonoBehaviour
 
     [Header("All Applications")]
     [SerializeField] private List<AppInfo> applications = new List<AppInfo>();
+    [SerializeField] private EchocordWarningUI warningPanel;
 
     [Header("Dependencies")]
     [SerializeField] private GameStateManager gameStateManager;
@@ -59,13 +60,19 @@ public class AppSystemManager : MonoBehaviour
 
     private void InitializeAllApps()
     {
-        homeScreen.SetActive(false);
-
         foreach (AppInfo app in applications)
         {
             if (app.appButton != null)
                 app.appButton.onClick.AddListener(() => LaunchApp(app.appName));
         }
+    }
+
+    private bool ShouldShowEchocordWarning()
+    {
+        FirstDayManager firstDayManager = FirstDayManager.GetInstance();
+        if (firstDayManager == null) return false;
+
+        return !firstDayManager.IsFirstDay() || firstDayManager.HasReturnedToHome();
     }
 
     public void LaunchEchocordImmediately()
@@ -75,12 +82,7 @@ public class AppSystemManager : MonoBehaviour
         if (echocordApp != null)
         {
             Debug.Log("Launching Echocord immediately after day transition");
-            currentOpenApp = echocordApp.appPanel;
-            currentAppType = AppType.Echocord;
-
-            echocordApp.appPanel.SetActive(true);
-
-            StartCoroutine(StartFirstConversationDelayed());
+            LaunchAppInternal(echocordApp);
         }
         else
         {
@@ -98,6 +100,33 @@ public class AppSystemManager : MonoBehaviour
             return;
         }
 
+        if (targetApp.appType == AppType.Echocord && ShouldShowEchocordWarning())
+        {
+            ShowEchocordWarning(targetApp);
+            return;
+        }
+
+        LaunchAppInternal(targetApp);
+    }
+
+    private void ShowEchocordWarning(AppInfo echocordApp)
+    {
+        if (warningPanel != null)
+        {
+            warningPanel.ShowWarning(
+                () => LaunchAppInternal(echocordApp),
+                () => Debug.Log("Echocord launch cancelled")
+            );
+        }
+        else
+        {
+            Debug.LogWarning("EchocordWarningPanel not found - launching Echocord directly");
+            LaunchAppInternal(echocordApp);
+        }
+    }
+
+    private void LaunchAppInternal(AppInfo targetApp)
+    {
         if (currentOpenApp != null)
         {
             CloseCurrentApp();
@@ -119,6 +148,10 @@ public class AppSystemManager : MonoBehaviour
                 if (!isFirstLaunch)
                 {
                     gameStateManager.StartConversationForCurrentDay();
+                }
+                else
+                {
+                    StartCoroutine(StartFirstConversationDelayed());
                 }
                 break;
 

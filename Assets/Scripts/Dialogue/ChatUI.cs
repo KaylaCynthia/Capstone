@@ -14,10 +14,14 @@ public class ChatUI
     private string currentTypingChatArea;
     private bool isTypingInProgress = false;
 
-    public void Initialize()
+    private MonoBehaviour coroutineRunner;
+
+    public void Initialize(MonoBehaviour runner)
     {
+        this.coroutineRunner = runner;
         typingIndicator.SetActive(false);
-        chatAreaManager.Initialize();
+
+        chatAreaManager.Initialize(parentChatUI: this);
 
         ChatAreaEvents.OnChatAreaChanged += OnChatAreaChanged;
     }
@@ -26,12 +30,14 @@ public class ChatUI
     {
         ChatAreaEvents.OnChatAreaChanged -= OnChatAreaChanged;
 
-        if (currentTypingCoroutine != null)
+        if (currentTypingCoroutine != null && coroutineRunner != null)
         {
-            ChatDialogueManager.GetInstance().StopCoroutine(currentTypingCoroutine);
+            coroutineRunner.StopCoroutine(currentTypingCoroutine);
             currentTypingCoroutine = null;
         }
         isTypingInProgress = false;
+
+        chatAreaManager.Cleanup();
     }
 
     private void OnChatAreaChanged(string newAreaName)
@@ -101,6 +107,12 @@ public class ChatUI
 
     public GameObject AddMessageToChat(ChatMessage message, string intendedChatArea = null)
     {
+        if (message.IsPlayer && string.IsNullOrEmpty(message.Message))
+        {
+            Debug.LogWarning("Attempted to create empty player message, skipping.");
+            return null;
+        }
+
         string targetArea = message.IsPlayer ? chatAreaManager.CurrentChatAreaName : (intendedChatArea ?? GetSpeakerChatArea(message.Speaker));
 
         if (targetArea == currentTypingChatArea && isTypingInProgress)
@@ -108,9 +120,9 @@ public class ChatUI
             isTypingInProgress = false;
             typingIndicator.SetActive(false);
 
-            if (currentTypingCoroutine != null)
+            if (currentTypingCoroutine != null && coroutineRunner != null)
             {
-                ChatDialogueManager.GetInstance().StopCoroutine(currentTypingCoroutine);
+                coroutineRunner.StopCoroutine(currentTypingCoroutine);
                 currentTypingCoroutine = null;
             }
         }
@@ -120,12 +132,6 @@ public class ChatUI
         if (targetContent == null)
         {
             Debug.LogWarning($"No content found for area: {targetArea}");
-            return null;
-        }
-
-        if (message.IsPlayer && string.IsNullOrEmpty(message.Message))
-        {
-            Debug.LogWarning("Attempted to create empty player message, skipping.");
             return null;
         }
 
@@ -182,7 +188,10 @@ public class ChatUI
 
     private void ScrollToBottomDelayed()
     {
-        ChatDialogueManager.GetInstance().StartCoroutine(ScrollToBottomCoroutine());
+        if (coroutineRunner != null)
+        {
+            coroutineRunner.StartCoroutine(ScrollToBottomCoroutine());
+        }
     }
 
     private IEnumerator ScrollToBottomCoroutine()
@@ -205,4 +214,11 @@ public class ChatUI
         }
         return "DefaultArea";
     }
+
+    public void UpdateChatAreaManagerDependencies(ChatAreaUnlockManager unlockManager = null, ChatAreaButtonManager buttonManager = null)
+    {
+        chatAreaManager.UpdateDependencies(this, unlockManager, buttonManager);
+    }
+
+    public ChatAreaManager GetChatAreaManager() => chatAreaManager;
 }

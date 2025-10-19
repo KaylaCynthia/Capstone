@@ -24,7 +24,7 @@ public class SleepAppUI : BaseAppUI
         base.OnEnable();
 
         if (sleepButton != null)
-            sleepButton.onClick.AddListener(StartSleep);
+            sleepButton.onClick.AddListener(PerformSleep);
 
         UpdateUI();
     }
@@ -34,7 +34,7 @@ public class SleepAppUI : BaseAppUI
         base.OnDisable();
 
         if (sleepButton != null)
-            sleepButton.onClick.RemoveListener(StartSleep);
+            sleepButton.onClick.RemoveListener(PerformSleep);
     }
 
     private void UpdateUI()
@@ -43,8 +43,7 @@ public class SleepAppUI : BaseAppUI
         {
             sleepBenefitsText.text = $"Sleep Benefits:\n" +
                                     $"+{sleepEffect.healthChange}% Health\n" +
-                                    $"{sleepEffect.stressChange}% Stress\n" +
-                                    "Progress to Next Day";
+                                    $"{sleepEffect.stressChange}% Stress";
         }
 
         if (currentDayText != null)
@@ -57,18 +56,18 @@ public class SleepAppUI : BaseAppUI
             sleepButton.interactable = true;
     }
 
-    private void StartSleep()
+    private void PerformSleep()
     {
-        StatsManager.GetInstance().PerformAction(sleepEffect);
-
-        DayManager dayManager = DayManager.GetInstance();
-        if (dayManager != null)
+        bool success = StatsManager.GetInstance().PerformAction(sleepEffect);
+        if (success)
         {
-            dayManager.StartNextDay();
-
+            Debug.Log("Sleep completed! Stats updated.");
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
+    }
 
-        Debug.Log("Going to sleep... Starting next day!");
+    protected override void OnStatsChanged(PlayerStats stats)
+    {
+        // Update UI if needed when stats change
     }
 }

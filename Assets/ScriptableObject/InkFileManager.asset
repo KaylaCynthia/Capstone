@@ -16,7 +16,15 @@ MonoBehaviour:
   - conversationKey: sunny_intro
     inkFile: {fileID: 4900000, guid: 200cf309373802b42a2bb144be078490, type: 3}
     nextPossibleBranches:
-    - sunny_intro
+    - welcoming
+  - conversationKey: welcoming
+    inkFile: {fileID: 4900000, guid: 20ff2ea54d24d064dadb9da94ead461e, type: 3}
+    nextPossibleBranches:
+    - lounge_intro
+  - conversationKey: lounge_intro
+    inkFile: {fileID: 4900000, guid: d267ee4365623664b8d7435f73864ce9, type: 3}
+    nextPossibleBranches:
+    - first_daily
   - conversationKey: next_day
     inkFile: {fileID: 0}
     nextPossibleBranches:

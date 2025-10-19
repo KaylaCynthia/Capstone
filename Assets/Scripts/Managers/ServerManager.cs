@@ -14,6 +14,8 @@ public class ServerManager : MonoBehaviour
     private static ServerManager instance;
     public static ServerManager GetInstance() => instance;
 
+    public System.Action<string> OnServerChanged;
+
     private void Awake()
     {
         if (instance != null)
@@ -43,20 +45,22 @@ public class ServerManager : MonoBehaviour
 
     public void ShowDMsServer()
     {
-        dmsServer.SetActive(true);
-        channelsServer.SetActive(false);
+        if (dmsServer != null) dmsServer.SetActive(true);
+        if (channelsServer != null) channelsServer.SetActive(false);
         currentServerType = "DMs";
 
         ServerEvents.TriggerServerChanged(currentServerType);
+        OnServerChanged?.Invoke(currentServerType);
     }
 
     public void ShowChannelsServer()
     {
-        dmsServer.SetActive(false);
-        channelsServer.SetActive(true);
+        if (dmsServer != null) dmsServer.SetActive(false);
+        if (channelsServer != null) channelsServer.SetActive(true);
         currentServerType = "Channels";
 
         ServerEvents.TriggerServerChanged(currentServerType);
+        OnServerChanged?.Invoke(currentServerType);
     }
 
     public void ToggleServers()

@@ -11,73 +11,97 @@ public class ChatAreaManager
     private string currentChatAreaName;
     private bool choicePanelIsOpen = false;
 
+    private ChatAreaUnlockManager unlockManager;
+    private ChatAreaButtonManager buttonManager;
+    private ChatUI chatUI;
+
     public string CurrentChatAreaName => currentChatAreaName;
     public ChatArea CurrentChatArea => chatAreas.ContainsKey(currentChatAreaName) ? chatAreas[currentChatAreaName] : null;
+    public IReadOnlyDictionary<string, ChatArea> ChatAreas => chatAreas;
 
-    public void Initialize()
+    public System.Action<string> OnChatAreaChanged { get; set; }
+    public System.Action<string> OnChatAreaSwitchBlocked { get; set; }
+
+    public void Initialize(ChatUI parentChatUI = null, ChatAreaUnlockManager unlockManager = null, ChatAreaButtonManager buttonManager = null)
     {
+        this.chatUI = parentChatUI;
+        this.unlockManager = unlockManager;
+        this.buttonManager = buttonManager;
+
+        FindAndInitializeChatAreas();
+        SubscribeToEvents();
+        ActivateFirstAvailableChatArea();
+    }
+
+    public void Cleanup()
+    {
+        UnsubscribeFromEvents();
+        chatAreas.Clear();
+    }
+
+    private void FindAndInitializeChatAreas()
+    {
+        chatAreas.Clear();
+
+        if (chatAreasParent == null)
+        {
+            Debug.LogError("ChatAreasParent is not assigned!");
+            return;
+        }
+
         foreach (Transform child in chatAreasParent)
         {
-            if (child.name == "background")
-            {
-                continue;
-            }
+            if (child.name == "background") continue;
+
             ChatArea area = child.GetComponent<ChatArea>();
             if (area != null)
             {
                 chatAreas[area.AreaName] = area;
                 area.Initialize();
+
+                buttonManager?.UpdateButtonState(area.AreaName);
             }
         }
 
-        if (chatAreas.Count > 0)
-        {
-            foreach (var area in chatAreas)
-            {
-                currentChatAreaName = area.Key;
-                area.Value.SetAsActive();
-                break;
-            }
-        }
-        else
+        if (chatAreas.Count == 0)
         {
             Debug.LogError("No chat areas found during initialization!");
         }
-
-        ChatAreaEvents.OnChoicePanelStateChanged += OnChoicePanelStateChanged;
     }
 
-    public void Cleanup()
+    private void SubscribeToEvents()
+    {
+        ChatAreaEvents.OnChoicePanelStateChanged += OnChoicePanelStateChanged;
+        ChatAreaEvents.OnChatAreaUnlocked += OnChatAreaUnlocked;
+    }
+
+    private void UnsubscribeFromEvents()
     {
         ChatAreaEvents.OnChoicePanelStateChanged -= OnChoicePanelStateChanged;
+        ChatAreaEvents.OnChatAreaUnlocked -= OnChatAreaUnlocked;
+    }
+
+    private void ActivateFirstAvailableChatArea()
+    {
+        foreach (var area in chatAreas)
+        {
+            if (IsChatAreaAccessible(area.Key))
+            {
+                SwitchToChatAreaInternal(area.Key);
+                break;
+            }
+        }
     }
 
     public void SwitchToChatArea(string areaName)
     {
-        if (choicePanelIsOpen)
+        if (!CanSwitchChatArea(areaName))
         {
-            Debug.LogWarning("Cannot switch chat areas while choice panel is open");
+            OnChatAreaSwitchBlocked?.Invoke(areaName);
             return;
         }
 
-        if (!string.IsNullOrEmpty(currentChatAreaName) && chatAreas.ContainsKey(currentChatAreaName))
-        {
-            chatAreas[currentChatAreaName].SetAsInactive();
-        }
-
-        if (chatAreas.ContainsKey(areaName))
-        {
-            currentChatAreaName = areaName;
-            chatAreas[areaName].SetAsActive();
-            
-            ChatNotificationEvents.TriggerChatAreaViewed(areaName);
-        }
-        else
-        {
-            Debug.LogWarning($"Chat area not found: {areaName}");
-        }
-
-        ChatAreaEvents.TriggerChatAreaChanged(areaName);
+        SwitchToChatAreaInternal(areaName);
     }
 
     public void SwitchToChatAreaViaButton(string areaName)
@@ -85,15 +109,89 @@ public class ChatAreaManager
         SwitchToChatArea(areaName);
     }
 
+    private bool CanSwitchChatArea(string areaName)
+    {
+        if (choicePanelIsOpen)
+        {
+            Debug.LogWarning("Cannot switch chat areas while choice panel is open");
+            return false;
+        }
+
+        if (!chatAreas.ContainsKey(areaName))
+        {
+            Debug.LogWarning($"Chat area not found: {areaName}");
+            return false;
+        }
+
+        if (!IsChatAreaAccessible(areaName))
+        {
+            Debug.LogWarning($"Chat area is not accessible: {areaName}");
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsChatAreaAccessible(string areaName)
+    {
+        if (unlockManager == null) return true;
+
+        return unlockManager.IsChatAreaUnlocked(areaName);
+    }
+
+    private void SwitchToChatAreaInternal(string areaName)
+    {
+        if (!string.IsNullOrEmpty(currentChatAreaName) && chatAreas.ContainsKey(currentChatAreaName))
+        {
+            chatAreas[currentChatAreaName].SetAsInactive();
+        }
+
+        currentChatAreaName = areaName;
+        chatAreas[areaName].SetAsActive();
+
+        ChatNotificationEvents.TriggerChatAreaViewed(areaName);
+        OnChatAreaChanged?.Invoke(areaName);
+        ChatAreaEvents.TriggerChatAreaChanged(areaName);
+
+        chatUI?.ScrollToBottom();
+    }
+
     private void OnChoicePanelStateChanged(bool isOpen)
     {
         choicePanelIsOpen = isOpen;
-        //Debug.Log($"Choice panel is now {(isOpen ? "open" : "closed")}. Chat area switching: {(isOpen ? "disabled" : "enabled")}");
     }
 
-    public ChatArea GetChatArea(string areaName)
+    private void OnChatAreaUnlocked(string areaName)
     {
-        return chatAreas.ContainsKey(areaName) ? chatAreas[areaName] : null;
+        if (chatAreas.ContainsKey(areaName))
+        {
+            if (string.IsNullOrEmpty(currentChatAreaName))
+            {
+                SwitchToChatArea(areaName);
+            }
+
+            buttonManager?.UpdateButtonState(areaName);
+        }
+    }
+
+    public bool IsAreaActive(string areaName)
+    {
+        return currentChatAreaName == areaName;
+    }
+
+    public bool IsAreaAccessible(string areaName)
+    {
+        return IsChatAreaAccessible(areaName);
+    }
+
+    public bool HasAccessibleAreas()
+    {
+        foreach (var areaName in chatAreas.Keys)
+        {
+            if (IsChatAreaAccessible(areaName))
+                return true;
+        }
+        return false;
     }
 
     public Transform GetCurrentContent() => CurrentChatArea?.Content;
@@ -109,8 +207,23 @@ public class ChatAreaManager
         return chatAreas.ContainsKey(areaName) ? chatAreas[areaName].Content : null;
     }
 
-    public bool IsAreaActive(string areaName)
+    public ChatArea GetChatArea(string areaName)
     {
-        return currentChatAreaName == areaName;
+        return chatAreas.ContainsKey(areaName) ? chatAreas[areaName] : null;
+    }
+
+    public void UpdateDependencies(ChatUI newChatUI = null, ChatAreaUnlockManager newUnlockManager = null, ChatAreaButtonManager newButtonManager = null)
+    {
+        if (newChatUI != null) chatUI = newChatUI;
+        if (newUnlockManager != null) unlockManager = newUnlockManager;
+        if (newButtonManager != null) buttonManager = newButtonManager;
+
+        if (buttonManager != null)
+        {
+            foreach (var areaName in chatAreas.Keys)
+            {
+                buttonManager.UpdateButtonState(areaName);
+            }
+        }
     }
 }

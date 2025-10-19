@@ -24,16 +24,27 @@ public class GameStateManager : MonoBehaviour
 
     public void StartConversationForCurrentDay(string chatArea = null)
     {
-        string conversationKey = GetConversationKeyForDay(GetCurrentDay());
-        string targetChatArea = chatArea ?? GetChatAreaForDay(GetCurrentDay());
+        if (GetCurrentDay() == 1)
+        {
+            ContinueFirstConversation();
+        }
+        else
+        {
+            string conversationKey = GetConversationKeyForDay(GetCurrentDay());
+            string targetChatArea = chatArea ?? GetChatAreaForDay(GetCurrentDay());
 
-        chatDialogueManager.StartConversation(conversationKey, targetChatArea);
+            chatDialogueManager.StartConversation(conversationKey, targetChatArea);
+        }
     }
 
     public void StartFirstConversation()
     {
-        // Force start the sunny_intro conversation
         chatDialogueManager.StartConversation("sunny_intro", "ChatAreaSunny");
+    }
+
+    public void ContinueFirstConversation()
+    {
+        chatDialogueManager.StartConversation("welcoming", "ChatAreaEntrance");
     }
 
     private string GetConversationKeyForDay(int day)

@@ -38,8 +38,26 @@ public class GameManager : MonoBehaviour
     {
         currentSceneName = SceneManager.GetActiveScene().name;
         InitializeDaySystem();
+        InitializeAdditionalManagers();
 
         CheckPlayerName();
+    }
+
+    private void InitializeAdditionalManagers()
+    {
+        if (FirstDayManager.GetInstance() == null)
+        {
+            GameObject firstDayObj = new GameObject("FirstDayManager");
+            firstDayObj.transform.SetParent(transform);
+            firstDayObj.AddComponent<FirstDayManager>();
+        }
+
+        if (ChatAreaUnlockManager.GetInstance() == null)
+        {
+            GameObject unlockObj = new GameObject("ChatAreaUnlockManager");
+            unlockObj.transform.SetParent(transform);
+            unlockObj.AddComponent<ChatAreaUnlockManager>();
+        }
     }
 
     private void CheckPlayerName()

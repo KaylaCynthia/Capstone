@@ -57,6 +57,8 @@ public class ChatArea : MonoBehaviour
         {
             scrollRect.enabled = false;
         }
+
+        transform.SetAsFirstSibling();
     }
 
     public void AdjustForChoices(bool showChoices)
