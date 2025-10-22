@@ -12,21 +12,29 @@ public class ChatMessageUI : MonoBehaviour
     [SerializeField] private RectTransform chatMessageRect;
     [SerializeField] private HorizontalLayoutGroup layoutGroup;
 
-    [Header("Message Styles")]
-    [SerializeField] private Color playerMessageColor = Color.blue;
-    [SerializeField] private Color npcMessageColor = Color.gray;
-    [SerializeField] private Sprite defaultPortrait;
-
     [Header("Sizing")]
     [SerializeField] private float minHeight = 60f;
     [SerializeField] private float maxWidth = 600f;
     [SerializeField] private float spacingBetweenMessages = 10f;
 
+    [Header("Animation")]
+    [SerializeField] private string defaultAnimation = "portrait_default";
+
+    private Animator portraitAnimator;
     private float originalMessageTextY;
     private float originalSpeakerTextY;
 
     private void Awake()
     {
+        if (portraitImage != null)
+        {
+            portraitAnimator = portraitImage.GetComponent<Animator>();
+            if (portraitAnimator == null)
+            {
+                Debug.LogWarning("No Animator component found on portraitImage GameObject");
+            }
+        }
+
         if (messageText != null)
         {
             originalMessageTextY = messageText.rectTransform.anchoredPosition.y;
@@ -59,14 +67,7 @@ public class ChatMessageUI : MonoBehaviour
 
     public void Initialize(ChatMessage message)
     {
-        if (message.Portrait != null)
-        {
-            portraitImage.sprite = message.Portrait;
-        }
-        else
-        {
-            portraitImage.sprite = defaultPortrait;
-        }
+        PlayPortraitAnimation(message.AnimationStateName);
 
         speakerText.text = message.Speaker;
         messageText.text = message.Message;
@@ -81,6 +82,35 @@ public class ChatMessageUI : MonoBehaviour
         }
 
         StartCoroutine(ResizeAfterLayout());
+    }
+
+    private void PlayPortraitAnimation(string animationStateName)
+    {
+        if (portraitAnimator == null) return;
+
+        string animationToPlay = string.IsNullOrEmpty(animationStateName) ? defaultAnimation : animationStateName;
+
+        if (HasAnimationState(animationToPlay))
+        {
+            portraitAnimator.Play(animationToPlay);
+        }
+        else
+        {
+            portraitAnimator.Play(defaultAnimation);
+        }
+    }
+
+    private bool HasAnimationState(string stateName)
+    {
+        if (portraitAnimator == null || portraitAnimator.runtimeAnimatorController == null)
+            return false;
+
+        foreach (var clip in portraitAnimator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name == stateName)
+                return true;
+        }
+        return false;
     }
 
     public void AppendMessage(string additionalText)
@@ -120,10 +150,7 @@ public class ChatMessageUI : MonoBehaviour
         float messageTextTopMargin = Mathf.Abs(originalMessageTextY);
         float totalHeight = speakerHeight + messageHeight + spacingBetweenMessages;
 
-        //Debug.Log($"Resizing - Speaker: {speakerHeight}, Message: {messageHeight}, Total: {totalHeight}");
-
         messageText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, messageHeight);
-
         chatMessageRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, totalHeight);
 
         if (messageContainer != null)
@@ -154,12 +181,6 @@ public class ChatMessageUI : MonoBehaviour
             layoutGroup.childAlignment = TextAnchor.UpperLeft;
         }
 
-        Image bgImage = GetComponent<Image>();
-        if (bgImage != null)
-        {
-            bgImage.color = playerMessageColor;
-        }
-
         if (chatMessageRect != null)
         {
             chatMessageRect.pivot = new Vector2(0f, 1f);
@@ -173,12 +194,6 @@ public class ChatMessageUI : MonoBehaviour
         if (layoutGroup != null)
         {
             layoutGroup.childAlignment = TextAnchor.UpperLeft;
-        }
-
-        Image bgImage = GetComponent<Image>();
-        if (bgImage != null)
-        {
-            bgImage.color = npcMessageColor;
         }
 
         if (chatMessageRect != null)

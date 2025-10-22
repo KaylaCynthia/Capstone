@@ -14,6 +14,7 @@ public class ChoiceHandler
 
     private TextMeshProUGUI[] choicesText;
     private Animator choicePanelAnimator;
+    private TextMeshProUGUI inputMessageText;
     private System.Action<int> onChoiceSelected;
     private List<Choice> currentChoices;
     private string currentChatAreaForChoices;
@@ -110,6 +111,8 @@ public class ChoiceHandler
 
     public void ShowChoices(List<Choice> choices, string currentChatArea)
     {
+        inputMessageText = inputMessageButton.GetComponentInChildren<TextMeshProUGUI>();
+        inputMessageText.color = Color.red;
         currentChatAreaForChoices = currentChatArea;
         currentChoices = choices;
     }
@@ -149,6 +152,7 @@ public class ChoiceHandler
 
     private void CloseChoicePanel()
     {
+        inputMessageText.color = new Color32(0xFF, 0xE1, 0xBA, 0xFF);
         TriggerCloseAnimation();
         ChatAreaEvents.TriggerChoicePanelStateChanged(false);
         //Debug.Log("Choice panel closed");

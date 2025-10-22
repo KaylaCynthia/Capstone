@@ -21,6 +21,12 @@ public class FirstDayManager : MonoBehaviour
             return;
         }
         instance = this;
+        
+        ServerLockManager serverLockManager = ServerLockManager.GetInstance();
+        if (serverLockManager != null && isFirstDay)
+        {
+            serverLockManager.LockServerSwitching();
+        }
     }
 
     public void HandleFirstDayConversationEnd()

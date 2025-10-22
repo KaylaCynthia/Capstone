@@ -3,7 +3,7 @@ VAR nextBranch = ""
 
 # speaker: Sunny
 # portrait: sunny_portrait
-heya you made it :) 
+heya you made it :)
 
 # speaker: Mothtea
 # portrait: mothtea_portrait
@@ -93,6 +93,8 @@ chaos is the only way
 
 # speaker: Hneybee
 # portrait: hneybee_portrait
+~ nextChatArea = "ChatAreaDaily"
+~ nextBranch = "first_daily"
 It's tradition at this point
 
 -> END

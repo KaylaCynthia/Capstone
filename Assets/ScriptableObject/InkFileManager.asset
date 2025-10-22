@@ -16,6 +16,10 @@ MonoBehaviour:
   - conversationKey: sunny_intro
     inkFile: {fileID: 4900000, guid: 200cf309373802b42a2bb144be078490, type: 3}
     nextPossibleBranches:
+    - sunny_intro2
+  - conversationKey: sunny_intro2
+    inkFile: {fileID: 4900000, guid: d103c2f0c7d6b154caa037129767d0cb, type: 3}
+    nextPossibleBranches:
     - welcoming
   - conversationKey: welcoming
     inkFile: {fileID: 4900000, guid: 20ff2ea54d24d064dadb9da94ead461e, type: 3}
@@ -25,6 +29,18 @@ MonoBehaviour:
     inkFile: {fileID: 4900000, guid: d267ee4365623664b8d7435f73864ce9, type: 3}
     nextPossibleBranches:
     - first_daily
+  - conversationKey: first_daily
+    inkFile: {fileID: 4900000, guid: f1713ccd657436d469eabc54ac86f806, type: 3}
+    nextPossibleBranches:
+    - lounge_intro2
+  - conversationKey: lounge_intro2
+    inkFile: {fileID: 4900000, guid: ce1eb5fae7e17604c9352a894dcf2a9a, type: 3}
+    nextPossibleBranches:
+    - rael_intro
+  - conversationKey: rael_intro
+    inkFile: {fileID: 4900000, guid: 24c3212995fd06d49b8ce667a4958f74, type: 3}
+    nextPossibleBranches:
+    - next_day
   - conversationKey: next_day
     inkFile: {fileID: 0}
     nextPossibleBranches:

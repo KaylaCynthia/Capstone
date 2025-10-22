@@ -44,7 +44,7 @@ public class GameStateManager : MonoBehaviour
 
     public void ContinueFirstConversation()
     {
-        chatDialogueManager.StartConversation("welcoming", "ChatAreaEntrance");
+        chatDialogueManager.StartConversation("sunny_intro2", "ChatAreaSunny");
     }
 
     private string GetConversationKeyForDay(int day)

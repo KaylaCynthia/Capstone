@@ -75,8 +75,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4290437631
+  m_fontColor: {r: 1, g: 0.88235295, b: 0.7294118, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -318,12 +318,10 @@ MonoBehaviour:
   messageContainer: {fileID: 7630340804179685916}
   chatMessageRect: {fileID: 5654558865518113638}
   layoutGroup: {fileID: 7183242114499429352}
-  playerMessageColor: {r: 0, g: 0, b: 1, a: 1}
-  npcMessageColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  defaultPortrait: {fileID: 0}
   minHeight: 10
   maxWidth: 775
-  spacingBetweenMessages: 10
+  spacingBetweenMessages: 20
+  defaultAnimation: portrait_default
 --- !u!1 &8979100257139849390
 GameObject:
   m_ObjectHideFlags: 0
@@ -399,8 +397,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4290437631
+  m_fontColor: {r: 1, g: 0.88235295, b: 0.7294118, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

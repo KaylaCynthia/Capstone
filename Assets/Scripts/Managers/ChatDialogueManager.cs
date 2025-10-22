@@ -220,7 +220,7 @@ public class ChatDialogueManager : MonoBehaviour
         }
         else
         {
-            ChatMessage chatMessage = ChatMessageFactory.Create(message, currentState);
+            ChatMessage chatMessage = currentState.IsPlayerSpeaking ? new PlayerMessage(message, currentState.CurrentPortraitTag) : new NPCMessage(currentState.CurrentSpeaker, message, currentState.CurrentPortraitTag);
             messageUI = chatUI.AddMessageToChat(chatMessage, currentConversationChatArea);
 
             if (messageUI != null && !isPlayerMessage)
@@ -350,6 +350,13 @@ public class ChatDialogueManager : MonoBehaviour
         {
             firstDayManager.CompleteFirstDialogue();
             firstDayManager.HandleFirstDayConversationEnd();
+
+            ServerLockManager serverLockManager = ServerLockManager.GetInstance();
+            if (serverLockManager != null)
+            {
+                serverLockManager.UnlockServerSwitching();
+            }
+
             StartCoroutine(ExitDialogueMode());
             yield break;
         }

@@ -10,6 +10,7 @@ public class ServerManager : MonoBehaviour
     [SerializeField] private bool startWithDMs = true;
 
     private string currentServerType = "DMs";
+    private ServerLockManager serverLockManager;
 
     private static ServerManager instance;
     public static ServerManager GetInstance() => instance;
@@ -24,6 +25,8 @@ public class ServerManager : MonoBehaviour
             return;
         }
         instance = this;
+
+        serverLockManager = ServerLockManager.GetInstance();
     }
 
     private void Start()
@@ -39,7 +42,14 @@ public class ServerManager : MonoBehaviour
         }
         else
         {
-            ShowChannelsServer();
+            if (serverLockManager == null || !serverLockManager.IsServerSwitchingLocked())
+            {
+                ShowChannelsServer();
+            }
+            else
+            {
+                ShowDMsServer();
+            }
         }
     }
 
@@ -55,6 +65,12 @@ public class ServerManager : MonoBehaviour
 
     public void ShowChannelsServer()
     {
+        if (serverLockManager != null && serverLockManager.IsServerSwitchingLocked())
+        {
+            Debug.LogWarning("Server switching is currently locked. Cannot switch to channels.");
+            return;
+        }
+
         if (dmsServer != null) dmsServer.SetActive(false);
         if (channelsServer != null) channelsServer.SetActive(true);
         currentServerType = "Channels";

@@ -32,6 +32,7 @@ public class ChatAreaButtonManager : MonoBehaviour
     private ChatAreaManager chatAreaManager;
     private ChatAreaUnlockManager unlockManager;
     private ServerManager serverManager;
+    private ServerLockManager serverLockManager;
 
     private static ChatAreaButtonManager instance;
     public static ChatAreaButtonManager GetInstance() => instance;
@@ -51,10 +52,12 @@ public class ChatAreaButtonManager : MonoBehaviour
         this.chatAreaManager = areaManager;
         this.unlockManager = unlockMgr;
         this.serverManager = serverMgr;
+        this.serverLockManager = ServerLockManager.GetInstance();
 
         InitializeButtonMap();
         SubscribeToEvents();
         UpdateAllButtonStates();
+        UpdateServerButtonVisibility();
     }
 
     private void OnDestroy()
@@ -97,6 +100,7 @@ public class ChatAreaButtonManager : MonoBehaviour
         ChatNotificationEvents.OnChatAreaViewed += OnChatAreaViewed;
         ChatAreaEvents.OnChatAreaUnlocked += OnChatAreaUnlocked;
         ServerEvents.OnServerChanged += OnServerChanged;
+        ServerEvents.OnServerSwitchingUnlocked += OnServerSwitchingUnlocked;
     }
 
     private void UnsubscribeFromEvents()
@@ -105,6 +109,7 @@ public class ChatAreaButtonManager : MonoBehaviour
         ChatNotificationEvents.OnChatAreaViewed -= OnChatAreaViewed;
         ChatAreaEvents.OnChatAreaUnlocked -= OnChatAreaUnlocked;
         ServerEvents.OnServerChanged -= OnServerChanged;
+        ServerEvents.OnServerSwitchingUnlocked -= OnServerSwitchingUnlocked;
     }
 
     private void OnNewMessage(string chatAreaName)
@@ -138,7 +143,13 @@ public class ChatAreaButtonManager : MonoBehaviour
 
     private void OnServerChanged(string serverType)
     {
-        UpdateButtonsVisibility();
+        UpdateServerButtonVisibility();
+    }
+
+    private void OnServerSwitchingUnlocked()
+    {
+        UpdateServerButtonVisibility();
+        Debug.Log("Server switching unlocked - updating button visibility");
     }
 
     public void UpdateButtonState(string chatAreaName)
@@ -182,18 +193,19 @@ public class ChatAreaButtonManager : MonoBehaviour
         return chatAreaName;
     }
 
-    private void UpdateButtonsVisibility()
+    private void UpdateServerButtonVisibility()
     {
         bool isDMsActive = serverManager?.IsDMsServerActive() ?? true;
-
-        if (dmsButtonsParent != null)
-        {
-            dmsButtonsParent.gameObject.SetActive(isDMsActive);
-        }
+        bool isServerSwitchingLocked = serverLockManager?.IsServerSwitchingLocked() ?? true;
 
         if (channelsButtonsParent != null)
         {
-            channelsButtonsParent.gameObject.SetActive(!isDMsActive);
+            channelsButtonsParent.gameObject.SetActive(!isDMsActive && !isServerSwitchingLocked);
+        }
+
+        if (dmsButtonsParent != null)
+        {
+            dmsButtonsParent.gameObject.SetActive(isDMsActive || isServerSwitchingLocked);
         }
 
         ReorderButtons();
@@ -202,6 +214,13 @@ public class ChatAreaButtonManager : MonoBehaviour
     private void ReorderButtons()
     {
         bool isDMsActive = serverManager?.IsDMsServerActive() ?? true;
+        bool isServerSwitchingLocked = serverLockManager?.IsServerSwitchingLocked() ?? true;
+
+        if (isServerSwitchingLocked)
+        {
+            isDMsActive = true;
+        }
+
         Transform activeParent = isDMsActive ? dmsButtonsParent : channelsButtonsParent;
         List<ChatAreaButton> activeButtons = isDMsActive ? dmButtons : channelButtons;
 
@@ -254,7 +273,7 @@ public class ChatAreaButtonManager : MonoBehaviour
         {
             UpdateButtonState(buttonInfo.chatAreaName);
         }
-        UpdateButtonsVisibility();
+        UpdateServerButtonVisibility();
     }
 
     public void RegisterChatAreaButton(string chatAreaName, Button button, TextMeshProUGUI buttonText, Transform buttonTransform, bool isDMArea)
