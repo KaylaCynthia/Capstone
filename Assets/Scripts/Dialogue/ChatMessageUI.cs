@@ -17,24 +17,14 @@ public class ChatMessageUI : MonoBehaviour
     [SerializeField] private float maxWidth = 600f;
     [SerializeField] private float spacingBetweenMessages = 10f;
 
-    [Header("Animation")]
-    [SerializeField] private string defaultAnimation = "portrait_default";
+    [Header("Default Portrait")]
+    [SerializeField] private Sprite defaultPortrait;
 
-    private Animator portraitAnimator;
     private float originalMessageTextY;
     private float originalSpeakerTextY;
 
     private void Awake()
     {
-        if (portraitImage != null)
-        {
-            portraitAnimator = portraitImage.GetComponent<Animator>();
-            if (portraitAnimator == null)
-            {
-                Debug.LogWarning("No Animator component found on portraitImage GameObject");
-            }
-        }
-
         if (messageText != null)
         {
             originalMessageTextY = messageText.rectTransform.anchoredPosition.y;
@@ -67,7 +57,7 @@ public class ChatMessageUI : MonoBehaviour
 
     public void Initialize(ChatMessage message)
     {
-        PlayPortraitAnimation(message.AnimationStateName);
+        SetPortraitSprite(message.PortraitSprite);
 
         speakerText.text = message.Speaker;
         messageText.text = message.Message;
@@ -84,33 +74,13 @@ public class ChatMessageUI : MonoBehaviour
         StartCoroutine(ResizeAfterLayout());
     }
 
-    private void PlayPortraitAnimation(string animationStateName)
+    private void SetPortraitSprite(Sprite portraitSprite)
     {
-        if (portraitAnimator == null) return;
-
-        string animationToPlay = string.IsNullOrEmpty(animationStateName) ? defaultAnimation : animationStateName;
-
-        if (HasAnimationState(animationToPlay))
+        if (portraitImage != null)
         {
-            portraitAnimator.Play(animationToPlay);
+            portraitImage.sprite = portraitSprite ?? defaultPortrait;
+            portraitImage.preserveAspect = true;
         }
-        else
-        {
-            portraitAnimator.Play(defaultAnimation);
-        }
-    }
-
-    private bool HasAnimationState(string stateName)
-    {
-        if (portraitAnimator == null || portraitAnimator.runtimeAnimatorController == null)
-            return false;
-
-        foreach (var clip in portraitAnimator.runtimeAnimatorController.animationClips)
-        {
-            if (clip.name == stateName)
-                return true;
-        }
-        return false;
     }
 
     public void AppendMessage(string additionalText)
@@ -147,7 +117,6 @@ public class ChatMessageUI : MonoBehaviour
 
         Vector2 speakerPreferredSize = speakerText.GetPreferredValues(speakerText.text);
         float speakerHeight = speakerPreferredSize.y;
-        float messageTextTopMargin = Mathf.Abs(originalMessageTextY);
         float totalHeight = speakerHeight + messageHeight + spacingBetweenMessages;
 
         messageText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, messageHeight);

@@ -4,7 +4,7 @@ public abstract class ChatMessage
 {
     public abstract string Speaker { get; }
     public abstract string Message { get; }
-    public abstract string AnimationStateName { get; }
+    public abstract Sprite PortraitSprite { get; }
     public abstract bool IsPlayer { get; }
 
     private static GameObject messagePrefab;
@@ -29,36 +29,36 @@ public abstract class ChatMessage
 
 public class PlayerMessage : ChatMessage
 {
-    public PlayerMessage(string message, string animationStateName)
+    public PlayerMessage(string message, Sprite portraitSprite)
     {
         this.message = message;
-        this.animationStateName = animationStateName;
+        this.portraitSprite = portraitSprite;
     }
 
     private string message;
-    private string animationStateName;
+    private Sprite portraitSprite;
 
     public override string Speaker => "You";
     public override string Message => message;
-    public override string AnimationStateName => animationStateName;
+    public override Sprite PortraitSprite => portraitSprite;
     public override bool IsPlayer => true;
 }
 
 public class NPCMessage : ChatMessage
 {
-    public NPCMessage(string speaker, string message, string animationStateName)
+    public NPCMessage(string speaker, string message, Sprite portraitSprite)
     {
         this.speaker = speaker;
         this.message = message;
-        this.animationStateName = animationStateName;
+        this.portraitSprite = portraitSprite;
     }
 
     private string speaker;
     private string message;
-    private string animationStateName;
+    private Sprite portraitSprite;
 
     public override string Speaker => speaker;
     public override string Message => message;
-    public override string AnimationStateName => animationStateName;
+    public override Sprite PortraitSprite => portraitSprite;
     public override bool IsPlayer => false;
 }

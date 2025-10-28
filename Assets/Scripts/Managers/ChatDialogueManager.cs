@@ -220,7 +220,11 @@ public class ChatDialogueManager : MonoBehaviour
         }
         else
         {
-            ChatMessage chatMessage = currentState.IsPlayerSpeaking ? new PlayerMessage(message, currentState.CurrentPortraitTag) : new NPCMessage(currentState.CurrentSpeaker, message, currentState.CurrentPortraitTag);
+            Sprite portraitSprite = GetPortraitSprite(currentState.CurrentPortraitTag);
+            ChatMessage chatMessage = currentState.IsPlayerSpeaking
+                ? new PlayerMessage(message, portraitSprite)
+                : new NPCMessage(currentState.CurrentSpeaker, message, portraitSprite);
+
             messageUI = chatUI.AddMessageToChat(chatMessage, currentConversationChatArea);
 
             if (messageUI != null && !isPlayerMessage)
@@ -266,6 +270,24 @@ public class ChatDialogueManager : MonoBehaviour
                 ContinueStory();
             }
         }
+    }
+
+    private Sprite GetPortraitSprite(string portraitTag)
+    {
+        if (string.IsNullOrEmpty(portraitTag))
+        {
+            Debug.LogWarning("Portrait tag is null or empty");
+            return null;
+        }
+
+        PortraitManager portraitManager = PortraitManager.GetInstance();
+        if (portraitManager == null)
+        {
+            Debug.LogError("PortraitManager instance not found!");
+            return null;
+        }
+
+        return portraitManager.GetPortrait(portraitTag);
     }
 
     private IEnumerator AppendToPlayerMessage(string additionalText)
@@ -321,7 +343,8 @@ public class ChatDialogueManager : MonoBehaviour
             return;
         }
 
-        ChatMessage playerMessage = new PlayerMessage(choiceText, null);
+        Sprite playerPortrait = GetPortraitSprite("player_portrait");
+        ChatMessage playerMessage = new PlayerMessage(choiceText, playerPortrait);
         GameObject messageUI = chatUI.AddMessageToChat(playerMessage);
 
         if (messageUI != null)

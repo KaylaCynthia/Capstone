@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class ChatNotificationManager : MonoBehaviour
@@ -8,6 +9,7 @@ public class ChatNotificationManager : MonoBehaviour
     public class ChatAreaNotification
     {
         public string chatAreaName;
+        public string serverType;
         public TextMeshProUGUI buttonText;
         public bool hasNewMessages;
     }
@@ -17,6 +19,8 @@ public class ChatNotificationManager : MonoBehaviour
     private Dictionary<string, ChatAreaNotification> notificationMap = new Dictionary<string, ChatAreaNotification>();
     private Color normalColor = new Color(1f, 0.882353f, 0.7294118f, 1);
     private Color notificationColor = Color.red;
+    private Image serverButtonNotif;
+    private ServerManager serverManager;
 
     private static ChatNotificationManager instance;
     public static ChatNotificationManager GetInstance() => instance;
@@ -35,6 +39,13 @@ public class ChatNotificationManager : MonoBehaviour
         ChatNotificationEvents.OnNewMessageInInactiveArea += OnNewMessage;
         ChatNotificationEvents.OnChatAreaViewed += OnChatAreaSwitched;
         ServerEvents.OnServerChanged += OnServerChanged;
+
+        serverManager = ServerManager.GetInstance();
+
+        serverButtonNotif = GameObject.Find("DMsBubble").transform.GetChild(0).GetComponent<Image>();
+        serverButtonNotif.color = new Color(1f, 0f, 0f, 0f);
+        serverButtonNotif = GameObject.Find("ServerBubble").transform.GetChild(0).GetComponent<Image>();
+        serverButtonNotif.color = new Color(1f, 0f, 0f, 0f);
     }
 
     private void OnDestroy()
@@ -56,9 +67,23 @@ public class ChatNotificationManager : MonoBehaviour
 
     private void OnNewMessage(string chatAreaName)
     {
+        Debug.Log("New message!");
         if (notificationMap.ContainsKey(chatAreaName))
         {
             notificationMap[chatAreaName].hasNewMessages = true;
+
+            if (notificationMap[chatAreaName].serverType == "DMs" && serverManager.GetCurrentServerType() != "DMs")
+            {
+                Debug.Log("Setting DMs bubble color to red");
+                serverButtonNotif = GameObject.Find("DMsBubble").transform.GetChild(0).GetComponent<Image>();
+                serverButtonNotif.color = new Color(1f, 0f, 0f, 1f);
+            }
+            else if (notificationMap[chatAreaName].serverType == "Channels" && serverManager.GetCurrentServerType() != "Channels")
+            {
+                Debug.Log("Setting Server bubble color to red");
+                serverButtonNotif = GameObject.Find("ServerBubble").transform.GetChild(0).GetComponent<Image>();
+                serverButtonNotif.color = new Color(1f, 0f, 0f, 1f);
+            }
 
             if (IsChatAreaInActiveServer(chatAreaName))
             {
@@ -69,6 +94,17 @@ public class ChatNotificationManager : MonoBehaviour
 
     private void OnChatAreaSwitched(string chatAreaName)
     {
+        if (notificationMap[chatAreaName].serverType == "DMs")
+        {
+            serverButtonNotif = GameObject.Find("DMsBubble").transform.GetChild(0).GetComponent<Image>();
+            serverButtonNotif.color = new Color(1f, 0f, 0f, 0f);
+        }
+        else if (notificationMap[chatAreaName].serverType == "Channels")
+        {
+            serverButtonNotif = GameObject.Find("ServerBubble").transform.GetChild(0).GetComponent<Image>();
+            serverButtonNotif.color = new Color(1f, 0f, 0f, 0f);
+        }
+
         if (notificationMap.ContainsKey(chatAreaName))
         {
             notificationMap[chatAreaName].hasNewMessages = false;
@@ -107,9 +143,8 @@ public class ChatNotificationManager : MonoBehaviour
 
     private bool IsChatAreaInActiveServer(string chatAreaName)
     {
-        string[] dmAreas = { "ChatAreaSunny", "ChatAreaZhongli", "ChatAreaNeuvilette" };
+        string[] dmAreas = { "ChatAreaSunny", "ChatAreaRael" };
 
-        ServerManager serverManager = ServerManager.GetInstance();
         if (serverManager == null) return true;
 
         if (serverManager.IsDMsServerActive())

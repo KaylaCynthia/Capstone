@@ -37,6 +37,7 @@ public class DialogueParser
                 state.SetPortraitTag(tagValue);
                 break;
             default:
+                Debug.LogWarning($"Unknown tag: {tagKey}");
                 break;
         }
     }

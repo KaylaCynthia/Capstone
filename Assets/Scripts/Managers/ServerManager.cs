@@ -81,7 +81,7 @@ public class ServerManager : MonoBehaviour
 
     public void ToggleServers()
     {
-        if (currentServerType == "DMs")
+        if (currentServerType == "DMs" && !serverLockManager.IsServerSwitchingLocked())
         {
             ShowChannelsServer();
         }
