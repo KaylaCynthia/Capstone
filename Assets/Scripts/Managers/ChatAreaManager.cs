@@ -11,7 +11,6 @@ public class ChatAreaManager
     private string currentChatAreaName;
     private bool choicePanelIsOpen = false;
 
-    private ChatAreaUnlockManager unlockManager;
     private ChatAreaButtonManager buttonManager;
     private ChatUI chatUI;
 
@@ -22,10 +21,9 @@ public class ChatAreaManager
     public System.Action<string> OnChatAreaChanged { get; set; }
     public System.Action<string> OnChatAreaSwitchBlocked { get; set; }
 
-    public void Initialize(ChatUI parentChatUI = null, ChatAreaUnlockManager unlockManager = null, ChatAreaButtonManager buttonManager = null)
+    public void Initialize(ChatUI parentChatUI = null, ChatAreaButtonManager buttonManager = null)
     {
         this.chatUI = parentChatUI;
-        this.unlockManager = unlockManager;
         this.buttonManager = buttonManager;
 
         FindAndInitializeChatAreas();
@@ -58,8 +56,6 @@ public class ChatAreaManager
             {
                 chatAreas[area.AreaName] = area;
                 area.Initialize();
-
-                buttonManager?.UpdateButtonState(area.AreaName);
             }
         }
 
@@ -134,9 +130,22 @@ public class ChatAreaManager
 
     private bool IsChatAreaAccessible(string areaName)
     {
-        if (unlockManager == null) return true;
+        if (!IsDMArea(areaName))
+            return true;
 
-        return unlockManager.IsChatAreaUnlocked(areaName);
+        ChatAreaButtonManager btnManager = ChatAreaButtonManager.GetInstance();
+        return btnManager?.IsDMAreaUnlocked(areaName) ?? true;
+    }
+
+    private bool IsDMArea(string areaName)
+    {
+        string[] dmAreas = { "ChatAreaSunny", "ChatAreaRael" };
+        foreach (string dmArea in dmAreas)
+        {
+            if (areaName == dmArea)
+                return true;
+        }
+        return false;
     }
 
     private void SwitchToChatAreaInternal(string areaName)
@@ -169,8 +178,6 @@ public class ChatAreaManager
             {
                 SwitchToChatArea(areaName);
             }
-
-            buttonManager?.UpdateButtonState(areaName);
         }
     }
 
@@ -212,18 +219,9 @@ public class ChatAreaManager
         return chatAreas.ContainsKey(areaName) ? chatAreas[areaName] : null;
     }
 
-    public void UpdateDependencies(ChatUI newChatUI = null, ChatAreaUnlockManager newUnlockManager = null, ChatAreaButtonManager newButtonManager = null)
+    public void UpdateDependencies(ChatUI newChatUI = null, ChatAreaButtonManager newButtonManager = null)
     {
         if (newChatUI != null) chatUI = newChatUI;
-        if (newUnlockManager != null) unlockManager = newUnlockManager;
         if (newButtonManager != null) buttonManager = newButtonManager;
-
-        if (buttonManager != null)
-        {
-            foreach (var areaName in chatAreas.Keys)
-            {
-                buttonManager.UpdateButtonState(areaName);
-            }
-        }
     }
 }

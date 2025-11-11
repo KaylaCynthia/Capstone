@@ -74,13 +74,13 @@ public class ChatNotificationManager : MonoBehaviour
 
             if (notificationMap[chatAreaName].serverType == "DMs" && serverManager.GetCurrentServerType() != "DMs")
             {
-                Debug.Log("Setting DMs bubble color to red");
+                //Debug.Log("Setting DMs bubble color to red");
                 serverButtonNotif = GameObject.Find("DMsBubble").transform.GetChild(0).GetComponent<Image>();
                 serverButtonNotif.color = new Color(1f, 0f, 0f, 1f);
             }
             else if (notificationMap[chatAreaName].serverType == "Channels" && serverManager.GetCurrentServerType() != "Channels")
             {
-                Debug.Log("Setting Server bubble color to red");
+                //Debug.Log("Setting Server bubble color to red");
                 serverButtonNotif = GameObject.Find("ServerBubble").transform.GetChild(0).GetComponent<Image>();
                 serverButtonNotif.color = new Color(1f, 0f, 0f, 1f);
             }

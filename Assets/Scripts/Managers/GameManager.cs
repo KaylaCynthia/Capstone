@@ -51,13 +51,6 @@ public class GameManager : MonoBehaviour
             firstDayObj.transform.SetParent(transform);
             firstDayObj.AddComponent<FirstDayManager>();
         }
-
-        if (ChatAreaUnlockManager.GetInstance() == null)
-        {
-            GameObject unlockObj = new GameObject("ChatAreaUnlockManager");
-            unlockObj.transform.SetParent(transform);
-            unlockObj.AddComponent<ChatAreaUnlockManager>();
-        }
     }
 
     private void CheckPlayerName()

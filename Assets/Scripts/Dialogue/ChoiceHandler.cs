@@ -20,7 +20,9 @@ public class ChoiceHandler
     private string currentChatAreaForChoices;
     private string currentActiveChatArea;
     private bool isInitialized = false;
+    private bool isClosing = false;
 
+    private const string STAY_CLOSED_TRIGGER = "Stay_Closed";
     private const string SHOW_CHOICE1_TRIGGER = "Show_Choice1";
     private const string SHOW_CHOICE2_TRIGGER = "Show_Choice2";
     private const string SHOW_CHOICE3_TRIGGER = "Show_Choice3";
@@ -88,25 +90,10 @@ public class ChoiceHandler
 
         ChatAreaEvents.OnChatAreaChanged += OnChatAreaChanged;
 
-        ResetAnimatorParameters();
         choicePanel.SetActive(false);
 
         isInitialized = true;
         Debug.Log("ChoiceHandler Initialized successfully");
-    }
-
-    private void ResetAnimatorParameters()
-    {
-        if (choicePanelAnimator == null) return;
-
-        choicePanelAnimator.SetBool(IS_OPEN_BOOL, false);
-
-        choicePanelAnimator.ResetTrigger(SHOW_CHOICE1_TRIGGER);
-        choicePanelAnimator.ResetTrigger(SHOW_CHOICE2_TRIGGER);
-        choicePanelAnimator.ResetTrigger(SHOW_CHOICE3_TRIGGER);
-        choicePanelAnimator.ResetTrigger(CLOSE_CHOICE1_TRIGGER);
-        choicePanelAnimator.ResetTrigger(CLOSE_CHOICE2_TRIGGER);
-        choicePanelAnimator.ResetTrigger(CLOSE_CHOICE3_TRIGGER);
     }
 
     public void ShowChoices(List<Choice> choices, string currentChatArea)
@@ -121,7 +108,7 @@ public class ChoiceHandler
     {
         Debug.Log($"ToggleChoicePanel called. IsOpen: {IsChoicePanelOpen}, InCorrectArea: {IsInCorrectChatArea()}");
 
-        if (IsChoicePanelOpen)
+        if (IsChoicePanelOpen && !isClosing)
         {
             CloseChoicePanel();
         }
@@ -143,28 +130,43 @@ public class ChoiceHandler
             return;
         }
 
+        isClosing = false;
         choicePanel.SetActive(true);
         DisplayChoices();
         TriggerShowAnimation();
         ChatAreaEvents.TriggerChoicePanelStateChanged(true);
-        //Debug.Log("Choice panel opened");
     }
 
     private void CloseChoicePanel()
     {
+        if (isClosing) return;
+
+        isClosing = true;
         inputMessageText.color = new Color32(0xFF, 0xE1, 0xBA, 0xFF);
         TriggerCloseAnimation();
         ChatAreaEvents.TriggerChoicePanelStateChanged(false);
-        //Debug.Log("Choice panel closed");
+
+        ChatDialogueManager.GetInstance().StartCoroutine(WaitForCloseAnimationThenStayClosed());
+    }
+
+    private System.Collections.IEnumerator WaitForCloseAnimationThenStayClosed()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        if (choicePanelAnimator != null)
+        {
+            choicePanelAnimator.SetTrigger(STAY_CLOSED_TRIGGER);
+        }
+
+        isClosing = false;
     }
 
     private void TriggerShowAnimation()
     {
+        Debug.Log("TriggerShowAnimation called");
         if (choicePanelAnimator == null) return;
 
         int choiceCount = currentChoices?.Count ?? 0;
-
-        ResetAnimatorParameters();
 
         switch (choiceCount)
         {
@@ -188,6 +190,7 @@ public class ChoiceHandler
 
     private void TriggerCloseAnimation()
     {
+        Debug.Log("TriggerCloseAnimation called");
         if (choicePanelAnimator == null) return;
 
         int choiceCount = currentChoices?.Count ?? 0;
@@ -195,6 +198,7 @@ public class ChoiceHandler
         switch (choiceCount)
         {
             case 1:
+                Debug.Log("Closing choice panel with 1 choice");
                 choicePanelAnimator.SetTrigger(CLOSE_CHOICE1_TRIGGER);
                 break;
             case 2:

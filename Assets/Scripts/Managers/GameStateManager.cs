@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameStateManager : MonoBehaviour
 {
@@ -24,6 +24,14 @@ public class GameStateManager : MonoBehaviour
 
     public void StartConversationForCurrentDay(string chatArea = null)
     {
+        string targetChatArea = chatArea ?? GetChatAreaForDay(GetCurrentDay());
+
+        ChatAreaButtonManager buttonManager = ChatAreaButtonManager.GetInstance();
+        if (buttonManager != null)
+        {
+            buttonManager.UnlockDMArea(targetChatArea);
+        }
+
         if (GetCurrentDay() == 1)
         {
             ContinueFirstConversation();
@@ -31,8 +39,6 @@ public class GameStateManager : MonoBehaviour
         else
         {
             string conversationKey = GetConversationKeyForDay(GetCurrentDay());
-            string targetChatArea = chatArea ?? GetChatAreaForDay(GetCurrentDay());
-
             chatDialogueManager.StartConversation(conversationKey, targetChatArea);
         }
     }

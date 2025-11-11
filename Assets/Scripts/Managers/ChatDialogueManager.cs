@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -74,41 +74,20 @@ public class ChatDialogueManager : MonoBehaviour
         }
 
         lastMessageFromUser.Clear();
-
-        InitializeAdditionalManagers();
+        InitializeButtonSystem();
     }
 
     private void InitializeButtonSystem()
     {
-        ChatAreaUnlockManager unlockManager = ChatAreaUnlockManager.GetInstance();
         ChatAreaButtonManager buttonManager = ChatAreaButtonManager.GetInstance();
         ServerManager serverManager = ServerManager.GetInstance();
 
         ChatAreaManager chatAreaManager = chatUI?.GetChatAreaManager();
+        //Debug.Log($"ChatAreaManager: {chatAreaManager}");
 
-        if (buttonManager != null && chatAreaManager != null && unlockManager != null && serverManager != null)
+        if (buttonManager != null && chatAreaManager != null && serverManager != null)
         {
-            buttonManager.Initialize(chatAreaManager, unlockManager, serverManager);
-        }
-        else
-        {
-            Debug.LogWarning("Button system initialization failed - missing dependencies");
-        }
-    }
-
-    private void InitializeAdditionalManagers()
-    {
-        ChatAreaUnlockManager unlockManager = ChatAreaUnlockManager.GetInstance();
-        ChatAreaButtonManager buttonManager = ChatAreaButtonManager.GetInstance();
-
-        if (chatUI != null)
-        {
-            chatUI.UpdateChatAreaManagerDependencies(unlockManager, buttonManager);
-        }
-
-        if (buttonManager != null)
-        {
-            InitializeButtonSystem();
+            buttonManager.Initialize(chatAreaManager, serverManager);
         }
     }
 
@@ -122,10 +101,10 @@ public class ChatDialogueManager : MonoBehaviour
 
         currentConversationChatArea = chatAreaName;
 
-        ChatAreaUnlockManager unlockManager = ChatAreaUnlockManager.GetInstance();
-        if (unlockManager != null)
+        ChatAreaButtonManager buttonManager = ChatAreaButtonManager.GetInstance();
+        if (buttonManager != null)
         {
-            unlockManager.UnlockChatArea(chatAreaName);
+            buttonManager.UnlockDMArea(chatAreaName);
         }
 
         inkFileManager.StartConversation(conversationKey);
@@ -133,7 +112,7 @@ public class ChatDialogueManager : MonoBehaviour
 
         if (inkFile != null)
         {
-            Debug.Log($"Starting conversation: {conversationKey} in area: {chatAreaName}");
+            //Debug.Log($"Starting conversation: {conversationKey} in area: {chatAreaName}");
             EnterDialogueMode(inkFile);
         }
     }
@@ -164,15 +143,16 @@ public class ChatDialogueManager : MonoBehaviour
 
     private IEnumerator DisplayMessage(string message, bool isPlayerMessage)
     {
-        Debug.Log($"Displaying message: {message} | IsPlayerMessage: {isPlayerMessage} | currentConversationChatArea: {currentConversationChatArea}");
         currentState.SetWaitingForInput(false);
+
+        string processedMessage = ProcessMessageWithPlayerName(message);
 
         if (isPlayerMessage && currentPlayerMessageUI != null)
         {
-            float delay = message.Length / lettersPerSecond;
+            float delay = processedMessage.Length / lettersPerSecond;
             yield return new WaitForSeconds(delay);
 
-            yield return StartCoroutine(AppendToPlayerMessage(message));
+            yield return StartCoroutine(AppendToPlayerMessage(processedMessage));
 
             if (currentStory.canContinue && currentStory.currentChoices.Count == 0)
             {
@@ -181,7 +161,7 @@ public class ChatDialogueManager : MonoBehaviour
             }
             else if (currentStory.currentChoices.Count > 0)
             {
-                Debug.Log($"Current choices amount: {currentStory.currentChoices.Count}");
+                //Debug.Log($"Current choices amount: {currentStory.currentChoices.Count}");
                 yield return new WaitForSeconds(0.5f);
                 ShowChoicesIfInCorrectArea();
             }
@@ -193,11 +173,11 @@ public class ChatDialogueManager : MonoBehaviour
         {
             if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
             {
-                yield return StartCoroutine(chatUI.ShowTypingForDuration(message.Length / lettersPerSecond, currentConversationChatArea));
+                yield return StartCoroutine(chatUI.ShowTypingForDuration(processedMessage.Length / lettersPerSecond, currentConversationChatArea));
             }
             else
             {
-                yield return new WaitForSeconds(message.Length / lettersPerSecond);
+                yield return new WaitForSeconds(processedMessage.Length / lettersPerSecond);
             }
         }
         else
@@ -214,16 +194,16 @@ public class ChatDialogueManager : MonoBehaviour
 
         if (shouldAppend)
         {
-            Debug.Log($"Appending to last message from {currentSpeaker}: {message}");
+            //Debug.Log($"Appending to last message from {currentSpeaker}: {processedMessage}");
             messageUI = lastMessageFromUser[currentSpeaker];
-            chatUI.AppendToMessage(messageUI, message);
+            chatUI.AppendToMessage(messageUI, processedMessage);
         }
         else
         {
             Sprite portraitSprite = GetPortraitSprite(currentState.CurrentPortraitTag);
             ChatMessage chatMessage = currentState.IsPlayerSpeaking
-                ? new PlayerMessage(message, portraitSprite)
-                : new NPCMessage(currentState.CurrentSpeaker, message, portraitSprite);
+                ? new PlayerMessage(processedMessage, portraitSprite)
+                : new NPCMessage(currentState.CurrentSpeaker, processedMessage, portraitSprite);
 
             messageUI = chatUI.AddMessageToChat(chatMessage, currentConversationChatArea);
 
@@ -270,6 +250,29 @@ public class ChatDialogueManager : MonoBehaviour
                 ContinueStory();
             }
         }
+    }
+
+    private string ProcessMessageWithPlayerName(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return message;
+
+        PlayerDataManager playerDataManager = PlayerDataManager.GetInstance();
+        if (playerDataManager == null)
+        {
+            Debug.LogWarning("PlayerDataManager not found - cannot replace Player_Name placeholder");
+            return message;
+        }
+
+        string playerName = playerDataManager.PlayerData.PlayerName;
+        string processedMessage = message.Replace("Player_Name", playerName);
+
+        if (processedMessage != message)
+        {
+            Debug.Log($"Replaced Player_Name with '{playerName}' in message: {message} -> {processedMessage}");
+        }
+
+        return processedMessage;
     }
 
     private Sprite GetPortraitSprite(string portraitTag)
@@ -366,7 +369,10 @@ public class ChatDialogueManager : MonoBehaviour
     {
         string nextChatArea = DetermineNextChatArea();
         string nextBranch = DetermineNextBranch();
-        Debug.Log($"End of conversation. NextChatArea: {nextChatArea}, NextBranch: {nextBranch}");
+        //Debug.Log($"End of conversation. NextChatArea: {nextChatArea}, NextBranch: {nextBranch}");
+
+        CheckAndUnlockNextChatArea();
+
         FirstDayManager firstDayManager = FirstDayManager.GetInstance();
 
         if (firstDayManager != null && firstDayManager.IsFirstDay() && !firstDayManager.IsCompletedFirstDialogue())
@@ -424,6 +430,20 @@ public class ChatDialogueManager : MonoBehaviour
         }
 
         StartCoroutine(ExitDialogueMode());
+    }
+
+    private void CheckAndUnlockNextChatArea()
+    {
+        string nextChatArea = DetermineNextChatArea();
+
+        if (!string.IsNullOrEmpty(nextChatArea))
+        {
+            ChatAreaButtonManager buttonManager = ChatAreaButtonManager.GetInstance();
+            if (buttonManager != null)
+            {
+                buttonManager.UnlockDMArea(nextChatArea);
+            }
+        }
     }
 
     private bool IsLastConversationOfDay()

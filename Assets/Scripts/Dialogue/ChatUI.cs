@@ -215,9 +215,9 @@ public class ChatUI
         return "DefaultArea";
     }
 
-    public void UpdateChatAreaManagerDependencies(ChatAreaUnlockManager unlockManager = null, ChatAreaButtonManager buttonManager = null)
+    public void UpdateChatAreaManagerDependencies(ChatAreaButtonManager buttonManager)
     {
-        chatAreaManager.UpdateDependencies(this, unlockManager, buttonManager);
+        chatAreaManager.UpdateDependencies(this, buttonManager);
     }
 
     public ChatAreaManager GetChatAreaManager() => chatAreaManager;
