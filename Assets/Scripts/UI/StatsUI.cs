@@ -15,6 +15,7 @@ public class StatsUI : MonoBehaviour
 
     [Header("Time Display")]
     [SerializeField] private TextMeshProUGUI timeText;
+    [SerializeField] private TextMeshProUGUI dayText;
 
     private void OnEnable()
     {
@@ -45,6 +46,9 @@ public class StatsUI : MonoBehaviour
 
         if (timeManager != null)
             UpdateTimeDisplay(timeManager.CurrentTime);
+
+        if (DayManager.GetInstance() != null)
+            UpdateDayDisplay();
     }
 
     private void UpdateStatsDisplay(PlayerStats stats)
@@ -59,5 +63,11 @@ public class StatsUI : MonoBehaviour
     private void UpdateTimeDisplay(TimeManager.TimeOfDay time)
     {
         if (timeText != null) timeText.text = time.ToString();
+    }
+
+    private void UpdateDayDisplay()
+    {
+        int currentDay = DayManager.GetInstance().GetCurrentDay();
+        if (dayText != null) dayText.text = $"Day {currentDay}";
     }
 }

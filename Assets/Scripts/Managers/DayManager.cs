@@ -52,6 +52,7 @@ public class DayManager : MonoBehaviour
     public void SetDay(int day)
     {
         currentDay = day;
+        dayText.text = $"Day {currentDay}";
     }
 
     public int GetCurrentDay() => currentDay;
@@ -78,6 +79,12 @@ public class DayManager : MonoBehaviour
         {
             SetAlpha(0f);
             yield return StartCoroutine(Fade(0f, 1f, transitionDuration / 2f));
+            yield return new WaitForSeconds(0.1f);
+            AppSystemManager appSystemManager = AppSystemManager.GetInstance();
+            if (appSystemManager != null && appSystemManager.IsAppOpen)
+            {
+                appSystemManager.ReturnToHomeScreen();
+            }
             yield return new WaitForSeconds(0.5f);
             yield return StartCoroutine(Fade(1f, 0f, transitionDuration / 2f));
         }

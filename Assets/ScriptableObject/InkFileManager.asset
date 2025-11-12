@@ -41,6 +41,10 @@ MonoBehaviour:
     inkFile: {fileID: 4900000, guid: 24c3212995fd06d49b8ce667a4958f74, type: 3}
     nextPossibleBranches:
     - next_day
+  - conversationKey: sunny_daytwo
+    inkFile: {fileID: 4900000, guid: 35bfc610d53f56e47b0604a2d57c9b95, type: 3}
+    nextPossibleBranches:
+    - lounge_daytwo
   - conversationKey: next_day
     inkFile: {fileID: 0}
     nextPossibleBranches:

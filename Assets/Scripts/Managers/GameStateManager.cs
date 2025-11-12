@@ -58,8 +58,8 @@ public class GameStateManager : MonoBehaviour
         switch (day)
         {
             case 1: return "sunny_intro";
-            case 2: return "sunny_day2";
-            case 3: return "sunny_day3";
+            case 2: return "sunny_daytwo";
+            case 3: return "sunny_daythree";
             default: return "sunny_intro";
         }
     }

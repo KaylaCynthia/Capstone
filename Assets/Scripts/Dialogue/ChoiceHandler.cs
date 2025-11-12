@@ -106,7 +106,7 @@ public class ChoiceHandler
 
     private void ToggleChoicePanel()
     {
-        Debug.Log($"ToggleChoicePanel called. IsOpen: {IsChoicePanelOpen}, InCorrectArea: {IsInCorrectChatArea()}");
+        //Debug.Log($"ToggleChoicePanel called. IsOpen: {IsChoicePanelOpen}, InCorrectArea: {IsInCorrectChatArea()}");
 
         if (IsChoicePanelOpen && !isClosing)
         {
@@ -163,7 +163,7 @@ public class ChoiceHandler
 
     private void TriggerShowAnimation()
     {
-        Debug.Log("TriggerShowAnimation called");
+        //Debug.Log("TriggerShowAnimation called");
         if (choicePanelAnimator == null) return;
 
         int choiceCount = currentChoices?.Count ?? 0;
@@ -190,7 +190,7 @@ public class ChoiceHandler
 
     private void TriggerCloseAnimation()
     {
-        Debug.Log("TriggerCloseAnimation called");
+        //Debug.Log("TriggerCloseAnimation called");
         if (choicePanelAnimator == null) return;
 
         int choiceCount = currentChoices?.Count ?? 0;
@@ -198,7 +198,7 @@ public class ChoiceHandler
         switch (choiceCount)
         {
             case 1:
-                Debug.Log("Closing choice panel with 1 choice");
+                //Debug.Log("Closing choice panel with 1 choice");
                 choicePanelAnimator.SetTrigger(CLOSE_CHOICE1_TRIGGER);
                 break;
             case 2:
@@ -257,7 +257,7 @@ public class ChoiceHandler
             CloseChoicePanel();
 
             onChoiceSelected?.Invoke(selectedIndex);
-            Debug.Log($"Choice selected: {selectedIndex} - {choicesCopy[selectedIndex].text}");
+            //Debug.Log($"Choice selected: {selectedIndex} - {choicesCopy[selectedIndex].text}");
         }
         else
         {

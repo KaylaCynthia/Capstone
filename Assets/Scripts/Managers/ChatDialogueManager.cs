@@ -186,8 +186,8 @@ public class ChatDialogueManager : MonoBehaviour
         }
 
         string currentSpeaker = currentState.CurrentSpeaker;
+        //Debug.Log($"Current Speaker: {currentSpeaker}, IsPlayerMessage: {isPlayerMessage}");
         GameObject messageUI;
-
         bool shouldAppend = !isPlayerMessage &&
                            currentSpeaker == lastSpeakerInCurrentArea &&
                            lastMessageFromUser.ContainsKey(currentSpeaker);
@@ -200,6 +200,7 @@ public class ChatDialogueManager : MonoBehaviour
         }
         else
         {
+            //Debug.Log($"Creating new message from {currentSpeaker}: {processedMessage}");
             Sprite portraitSprite = GetPortraitSprite(currentState.CurrentPortraitTag);
             ChatMessage chatMessage = currentState.IsPlayerSpeaking
                 ? new PlayerMessage(processedMessage, portraitSprite)
@@ -407,27 +408,27 @@ public class ChatDialogueManager : MonoBehaviour
             }
         }
 
-        if (firstDayManager != null)
-        {
-            if (IsLastConversationOfDay())
-            {
-                DayManager dayManager = DayManager.GetInstance();
-                if (dayManager != null)
-                {
-                    if (firstDayManager.IsFirstDay() && nextChatArea == "next_day")
-                    {
-                        firstDayManager.CompleteFirstDay();
-                        yield return new WaitForSeconds(1f);
-                        dayManager.StartNextDay();
-                    }
-                    else
-                    {
-                        yield return new WaitForSeconds(1f);
-                        dayManager.StartNextDay();
-                    }
-                }
-            }
-        }
+        //if (firstDayManager != null)
+        //{
+        //    if (IsLastConversationOfDay())
+        //    {
+        //        DayManager dayManager = DayManager.GetInstance();
+        //        if (dayManager != null)
+        //        {
+        //            if (firstDayManager.IsFirstDay() && nextChatArea == "next_day")
+        //            {
+        //                firstDayManager.CompleteFirstDay();
+        //                yield return new WaitForSeconds(1f);
+        //                dayManager.StartNextDay();
+        //            }
+        //            else
+        //            {
+        //                yield return new WaitForSeconds(1f);
+        //                dayManager.StartNextDay();
+        //            }
+        //        }
+        //    }
+        //}
 
         StartCoroutine(ExitDialogueMode());
     }
@@ -446,19 +447,19 @@ public class ChatDialogueManager : MonoBehaviour
         }
     }
 
-    private bool IsLastConversationOfDay()
-    {
-        if (currentStory == null) return false;
+    //private bool IsLastConversationOfDay()
+    //{
+    //    if (currentStory == null) return false;
 
-        string currentKey = inkFileManager?.GetCurrentInkFile()?.name;
-        if (currentKey != null)
-        {
-            if (currentKey.Contains("next_day"))
-                return true;
-        }
+    //    string currentKey = inkFileManager?.GetCurrentInkFile()?.name;
+    //    if (currentKey != null)
+    //    {
+    //        if (currentKey.Contains("next_day"))
+    //            return true;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     private IEnumerator HandleDayTransition()
     {
@@ -473,35 +474,22 @@ public class ChatDialogueManager : MonoBehaviour
             dayManager.StartNextDay();
             yield return new WaitForSeconds(dayManager.TransitionDuration + 0.5f);
 
-            string nextChatArea = DetermineNextChatArea();
-            string nextBranch = DetermineNextBranchAfterDayTransition();
-
-            if (!string.IsNullOrEmpty(nextBranch))
-            {
-                inkFileManager.MoveToNextBranch(nextBranch);
-                TextAsset nextInkFile = inkFileManager.GetCurrentInkFile();
-                if (nextInkFile != null)
-                {
-                    currentConversationChatArea = nextChatArea ?? currentConversationChatArea;
-                    EnterDialogueMode(nextInkFile);
-                    yield break;
-                }
-            }
+            Debug.Log("Day transition complete. Food panel should appear for day 2+");
         }
 
         StartCoroutine(ExitDialogueMode());
     }
 
-    private string DetermineNextBranchAfterDayTransition()
-    {
-        int currentDay = DayManager.GetInstance().GetCurrentDay();
-        switch (currentDay)
-        {
-            case 2: return "sunny_day2";
-            case 3: return "sunny_day3";
-            default: return "sunny_intro";
-        }
-    }
+    //private string DetermineNextBranchAfterDayTransition()
+    //{
+    //    int currentDay = DayManager.GetInstance().GetCurrentDay();
+    //    switch (currentDay)
+    //    {
+    //        case 2: return "sunny_daytwo";
+    //        case 3: return "sunny_daythree";
+    //        default: return "sunny_intro";
+    //    }
+    //}
 
     private string DetermineNextChatArea()
     {
