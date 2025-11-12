@@ -56,6 +56,13 @@ public class AppSystemManager : MonoBehaviour
     private void Start()
     {
         InitializeAllApps();
+        UpdateAllAppButtons();
+        TimeEvents.OnTimeChanged += OnTimeChanged;
+    }
+
+    private void OnDestroy()
+    {
+        TimeEvents.OnTimeChanged -= OnTimeChanged;
     }
 
     private void InitializeAllApps()
@@ -64,6 +71,26 @@ public class AppSystemManager : MonoBehaviour
         {
             if (app.appButton != null)
                 app.appButton.onClick.AddListener(() => LaunchApp(app.appName));
+        }
+    }
+
+    private void OnTimeChanged(TimeManager.TimeOfDay time)
+    {
+        UpdateAllAppButtons();
+    }
+
+    private void UpdateAllAppButtons()
+    {
+        bool isNight = TimeManager.GetInstance().CurrentTime == TimeManager.TimeOfDay.Night;
+        bool isAppOpen = currentOpenApp != null;
+
+        foreach (AppInfo app in applications)
+        {
+            if (app.appButton != null)
+            {
+                bool shouldBeInteractable = (app.appType == AppType.Echocord || !isNight) && !isAppOpen;
+                app.appButton.interactable = shouldBeInteractable;
+            }
         }
     }
 
@@ -100,6 +127,19 @@ public class AppSystemManager : MonoBehaviour
             return;
         }
 
+        bool isNight = TimeManager.GetInstance().CurrentTime == TimeManager.TimeOfDay.Night;
+        if (isNight && targetApp.appType != AppType.Echocord)
+        {
+            Debug.LogWarning($"Cannot launch {appName} at night time!");
+            return;
+        }
+
+        if (currentOpenApp != null && currentOpenApp != targetApp.appPanel)
+        {
+            Debug.LogWarning($"Cannot launch {appName} because {currentOpenApp.name} is already open!");
+            return;
+        }
+
         if (targetApp.appType == AppType.Echocord && ShouldShowEchocordWarning())
         {
             ShowEchocordWarning(targetApp);
@@ -127,17 +167,33 @@ public class AppSystemManager : MonoBehaviour
 
     private void LaunchAppInternal(AppInfo targetApp)
     {
-        if (currentOpenApp != null)
+        Debug.Log($"Launching {targetApp.appName} as {(IsOverlayApp(targetApp.appType) ? "OVERLAY" : "FULLSCREEN")} app");
+
+        if (currentOpenApp != null && currentOpenApp != targetApp.appPanel)
         {
             CloseCurrentApp();
         }
 
-        homeScreen.SetActive(false);
+        if (!IsOverlayApp(targetApp.appType))
+        {
+            homeScreen.SetActive(false);
+        }
+
         targetApp.appPanel.SetActive(true);
         currentOpenApp = targetApp.appPanel;
         currentAppType = targetApp.appType;
 
+        UpdateAllAppButtons();
+
         HandleAppSpecificInitialization(targetApp);
+    }
+
+    private bool IsOverlayApp(AppType appType)
+    {
+        return appType == AppType.Exercise ||
+               appType == AppType.Work ||
+               appType == AppType.Sleep ||
+               appType == AppType.Bank;
     }
 
     private void HandleAppSpecificInitialization(AppInfo app)
@@ -159,13 +215,14 @@ public class AppSystemManager : MonoBehaviour
             case AppType.Work:
             case AppType.Sleep:
             case AppType.Bank:
+                //Debug.Log($"{app.appName} overlaying on home screen");
                 break;
         }
 
-        Debug.Log($"Launched {app.appName} ({app.appType})");
+        Debug.Log($"Launched {app.appName} ({app.appType}) - Home screen active: {homeScreen.activeSelf}");
     }
 
-    private System.Collections.IEnumerator StartFirstConversationDelayed()
+    private IEnumerator StartFirstConversationDelayed()
     {
         yield return new WaitForSeconds(0.1f);
         GameStateManager.GetInstance().StartFirstConversation();
@@ -176,14 +233,21 @@ public class AppSystemManager : MonoBehaviour
     {
         if (currentOpenApp == null) return;
 
+        Debug.Log($"Returning to home screen from {currentAppType}");
+
         CloseCurrentApp();
         homeScreen.SetActive(true);
+        UpdateAllAppButtons();
     }
 
     private void CloseCurrentApp()
     {
-        currentOpenApp.SetActive(false);
-        currentOpenApp = null;
+        if (currentOpenApp != null)
+        {
+            currentOpenApp.SetActive(false);
+            currentOpenApp = null;
+            currentAppType = AppType.Other;
+        }
     }
 
     public bool IsAppOpen => currentOpenApp != null;
@@ -200,5 +264,7 @@ public class AppSystemManager : MonoBehaviour
 
         appPanel.SetActive(false);
         appButton.onClick.AddListener(() => LaunchApp(appName));
+
+        UpdateAllAppButtons();
     }
 }

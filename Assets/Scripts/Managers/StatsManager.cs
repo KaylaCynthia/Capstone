@@ -38,7 +38,7 @@ public class StatsManager : MonoBehaviour
 
     public bool PerformAction(ActionEffect actionEffect)
     {
-        if (!currentStats.CanPerformAction() && actionEffect.actionName != "Sleep")
+        if (!currentStats.CanPerformAction())
         {
             Debug.LogWarning("Cannot perform action - daily limit reached!");
             return false;
@@ -48,11 +48,11 @@ public class StatsManager : MonoBehaviour
         currentStats.ModifyStress(actionEffect.stressChange);
         currentStats.ModifyCash(actionEffect.cashChange);
 
-        if (actionEffect.actionName != "Sleep")
-        {
-            currentStats.actionsPerformedToday++;
-            TimeManager.GetInstance().AdvanceTime();
-        }
+        Debug.Log(currentStats.health);
+        Debug.Log(currentStats.stress);
+
+        currentStats.actionsPerformedToday++;
+        TimeManager.GetInstance().AdvanceTime();
 
         if (actionEffect.cashChange != 0)
         {

@@ -25,8 +25,6 @@ public class SleepAppUI : BaseAppUI
 
         if (sleepButton != null)
             sleepButton.onClick.AddListener(PerformSleep);
-
-        UpdateUI();
     }
 
     protected override void OnDisable()
@@ -37,7 +35,14 @@ public class SleepAppUI : BaseAppUI
             sleepButton.onClick.RemoveListener(PerformSleep);
     }
 
-    private void UpdateUI()
+    protected override void RefreshUI()
+    {
+        UpdateSleepBenefitsText();
+        UpdateCurrentDayText();
+        UpdateButtonState();
+    }
+
+    private void UpdateSleepBenefitsText()
     {
         if (sleepBenefitsText != null)
         {
@@ -45,13 +50,19 @@ public class SleepAppUI : BaseAppUI
                                     $"+{sleepEffect.healthChange}% Health\n" +
                                     $"{sleepEffect.stressChange}% Stress";
         }
+    }
 
+    private void UpdateCurrentDayText()
+    {
         if (currentDayText != null)
         {
             int currentDay = DayManager.GetInstance().GetCurrentDay();
             currentDayText.text = $"Current Day: {currentDay}";
         }
+    }
 
+    private void UpdateButtonState()
+    {
         if (sleepButton != null)
             sleepButton.interactable = true;
     }

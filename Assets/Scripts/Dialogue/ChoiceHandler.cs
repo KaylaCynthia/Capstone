@@ -93,7 +93,7 @@ public class ChoiceHandler
         choicePanel.SetActive(false);
 
         isInitialized = true;
-        Debug.Log("ChoiceHandler Initialized successfully");
+        //Debug.Log("ChoiceHandler Initialized successfully");
     }
 
     public void ShowChoices(List<Choice> choices, string currentChatArea)

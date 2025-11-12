@@ -34,6 +34,7 @@ public class TimeManager : MonoBehaviour
             case TimeOfDay.Night: currentTime = TimeOfDay.Morning; break;
         }
 
+        Debug.Log($"Time advanced to: {currentTime}");
         TimeEvents.TriggerTimeChanged(currentTime);
     }
 

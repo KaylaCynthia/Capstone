@@ -24,8 +24,6 @@ public class ExerciseAppUI : BaseAppUI
 
         if (performExerciseButton != null)
             performExerciseButton.onClick.AddListener(PerformExercise);
-
-        UpdateUI();
     }
 
     protected override void OnDisable()
@@ -36,7 +34,13 @@ public class ExerciseAppUI : BaseAppUI
             performExerciseButton.onClick.RemoveListener(PerformExercise);
     }
 
-    private void UpdateUI()
+    protected override void RefreshUI()
+    {
+        UpdateEffectsText();
+        UpdateButtonState();
+    }
+
+    private void UpdateEffectsText()
     {
         if (effectsText != null)
         {
@@ -44,8 +48,6 @@ public class ExerciseAppUI : BaseAppUI
                               $"+{exerciseEffect.healthChange}% Health\n" +
                               $"{exerciseEffect.stressChange}% Stress";
         }
-
-        UpdateButtonState();
     }
 
     private void UpdateButtonState()
@@ -66,6 +68,7 @@ public class ExerciseAppUI : BaseAppUI
         if (success)
         {
             Debug.Log("Exercise completed!");
+            AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
     }
 

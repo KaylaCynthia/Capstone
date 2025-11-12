@@ -67,6 +67,7 @@ public class WorkAppUI : BaseAppUI
         if (success)
         {
             Debug.Log("Work completed!");
+            AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
     }
 
