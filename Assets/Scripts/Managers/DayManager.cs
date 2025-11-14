@@ -60,6 +60,17 @@ public class DayManager : MonoBehaviour
     public void ResetDailyStats()
     {
         TimeManager.GetInstance()?.ResetToMorning();
+
+        StatsManager statsManager = StatsManager.GetInstance();
+        if (statsManager != null)
+        {
+            statsManager.ResetDailyStats();
+            Debug.Log($"Daily stats reset - actions: {statsManager.GetCurrentStats().actionsPerformedToday}/{statsManager.GetCurrentStats().maxActionsPerDay}");
+        }
+        else
+        {
+            Debug.LogError("StatsManager not found when resetting daily stats!");
+        }
     }
 
     private IEnumerator DayTransitionCoroutine(bool isFirstTransition)

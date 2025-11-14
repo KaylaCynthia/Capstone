@@ -5,9 +5,8 @@ using UnityEngine.UI;
 public class SleepAppUI : BaseAppUI
 {
     [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI sleepBenefitsText;
+    [SerializeField] private TextMeshProUGUI effectsText;
     [SerializeField] private Button sleepButton;
-    [SerializeField] private TextMeshProUGUI currentDayText;
 
     [Header("Sleep Effects")]
     [SerializeField]
@@ -25,46 +24,47 @@ public class SleepAppUI : BaseAppUI
 
         if (sleepButton != null)
             sleepButton.onClick.AddListener(PerformSleep);
+
+        RefreshUI();
     }
 
     protected override void OnDisable()
     {
-        base.OnDisable();
-
         if (sleepButton != null)
             sleepButton.onClick.RemoveListener(PerformSleep);
+
+        base.OnDisable();
     }
 
     protected override void RefreshUI()
     {
-        UpdateSleepBenefitsText();
-        UpdateCurrentDayText();
+        UpdateEffectsText();
         UpdateButtonState();
     }
 
-    private void UpdateSleepBenefitsText()
+    private void UpdateEffectsText()
     {
-        if (sleepBenefitsText != null)
+        if (effectsText != null)
         {
-            sleepBenefitsText.text = $"Sleep Benefits:\n" +
+            effectsText.text = $"Sleep Benefits:\n" +
                                     $"+{sleepEffect.healthChange}% Health\n" +
                                     $"{sleepEffect.stressChange}% Stress";
-        }
-    }
-
-    private void UpdateCurrentDayText()
-    {
-        if (currentDayText != null)
-        {
-            int currentDay = DayManager.GetInstance().GetCurrentDay();
-            currentDayText.text = $"Current Day: {currentDay}";
         }
     }
 
     private void UpdateButtonState()
     {
         if (sleepButton != null)
-            sleepButton.interactable = true;
+        {
+            PlayerStats stats = StatsManager.GetInstance().GetCurrentStats();
+            bool isNight = TimeManager.GetInstance().CurrentTime == TimeManager.TimeOfDay.Night;
+            bool hasActionsLeft = stats.actionsPerformedToday < stats.maxActionsPerDay;
+
+            sleepButton.interactable = hasActionsLeft && !isNight;
+
+            //Debug.Log($"Sleep Button - Actions: {stats.actionsPerformedToday}/{stats.maxActionsPerDay}, " +
+            //         $"Is Night: {isNight}, Interactable: {sleepButton.interactable}");
+        }
     }
 
     private void PerformSleep()
@@ -75,10 +75,22 @@ public class SleepAppUI : BaseAppUI
             Debug.Log("Sleep completed! Stats updated.");
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
+        else
+        {
+            Debug.LogWarning("Sleep failed - no actions left or night time");
+            UpdateButtonState();
+        }
     }
 
     protected override void OnStatsChanged(PlayerStats stats)
     {
-        // Update UI if needed when stats change
+        //Debug.Log("SleepApp: Stats changed, updating button");
+        UpdateButtonState();
+    }
+
+    protected override void OnTimeChanged(TimeManager.TimeOfDay time)
+    {
+        //Debug.Log($"SleepApp: Time changed to {time}, updating button");
+        UpdateButtonState();
     }
 }

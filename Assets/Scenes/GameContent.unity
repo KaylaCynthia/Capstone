@@ -3149,9 +3149,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4360a3e0bf6899443bc0d47a219cc01f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sleepBenefitsText: {fileID: 907516551}
+  effectsText: {fileID: 907516551}
   sleepButton: {fileID: 660619700}
-  currentDayText: {fileID: 1800303150}
   sleepEffect:
     actionName: Sleep
     healthChange: 20

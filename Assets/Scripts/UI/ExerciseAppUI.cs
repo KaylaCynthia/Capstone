@@ -24,14 +24,16 @@ public class ExerciseAppUI : BaseAppUI
 
         if (performExerciseButton != null)
             performExerciseButton.onClick.AddListener(PerformExercise);
+
+        RefreshUI();
     }
 
     protected override void OnDisable()
     {
-        base.OnDisable();
-
         if (performExerciseButton != null)
             performExerciseButton.onClick.RemoveListener(PerformExercise);
+
+        base.OnDisable();
     }
 
     protected override void RefreshUI()
@@ -59,6 +61,9 @@ public class ExerciseAppUI : BaseAppUI
             bool hasActionsLeft = stats.actionsPerformedToday < stats.maxActionsPerDay;
 
             performExerciseButton.interactable = hasActionsLeft && !isNight;
+
+            //Debug.Log($"Exercise Button - Actions: {stats.actionsPerformedToday}/{stats.maxActionsPerDay}, " +
+            //         $"Is Night: {isNight}, Interactable: {performExerciseButton.interactable}");
         }
     }
 
@@ -70,15 +75,22 @@ public class ExerciseAppUI : BaseAppUI
             Debug.Log("Exercise completed!");
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
+        else
+        {
+            Debug.LogWarning("Exercise failed - no actions left or night time");
+            UpdateButtonState();
+        }
     }
 
     protected override void OnStatsChanged(PlayerStats stats)
     {
+        //Debug.Log("ExerciseApp: Stats changed, updating button");
         UpdateButtonState();
     }
 
     protected override void OnTimeChanged(TimeManager.TimeOfDay time)
     {
+        //Debug.Log($"ExerciseApp: Time changed to {time}, updating button");
         UpdateButtonState();
     }
 }

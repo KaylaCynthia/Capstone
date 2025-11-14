@@ -67,7 +67,7 @@ public class ChatNotificationManager : MonoBehaviour
 
     private void OnNewMessage(string chatAreaName)
     {
-        Debug.Log("New message!");
+        //Debug.Log("New message!");
         if (notificationMap.ContainsKey(chatAreaName))
         {
             notificationMap[chatAreaName].hasNewMessages = true;

@@ -26,6 +26,7 @@ public class WorkAppUI : BaseAppUI
             performWorkButton.onClick.AddListener(PerformWork);
 
         UpdateUI();
+        UpdateButtonState();
     }
 
     protected override void OnDisable()
@@ -58,6 +59,8 @@ public class WorkAppUI : BaseAppUI
             bool hasActionsLeft = stats.actionsPerformedToday < stats.maxActionsPerDay;
 
             performWorkButton.interactable = hasActionsLeft && !isNight;
+
+            //Debug.Log($"Work Button State - Actions Left: {hasActionsLeft}, Is Night: {isNight}, Interactable: {performWorkButton.interactable}");
         }
     }
 
@@ -69,15 +72,21 @@ public class WorkAppUI : BaseAppUI
             Debug.Log("Work completed!");
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
+        else
+        {
+            Debug.LogWarning("Could not perform work - no actions left or it's night time");
+        }
     }
 
     protected override void OnStatsChanged(PlayerStats stats)
     {
+        //Debug.Log("WorkAppUI: Stats changed, updating button state");
         UpdateButtonState();
     }
 
     protected override void OnTimeChanged(TimeManager.TimeOfDay time)
     {
+        //Debug.Log($"WorkAppUI: Time changed to {time}, updating button state");
         UpdateButtonState();
     }
 }

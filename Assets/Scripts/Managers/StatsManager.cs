@@ -48,9 +48,6 @@ public class StatsManager : MonoBehaviour
         currentStats.ModifyStress(actionEffect.stressChange);
         currentStats.ModifyCash(actionEffect.cashChange);
 
-        Debug.Log(currentStats.health);
-        Debug.Log(currentStats.stress);
-
         currentStats.actionsPerformedToday++;
         TimeManager.GetInstance().AdvanceTime();
 
@@ -75,6 +72,7 @@ public class StatsManager : MonoBehaviour
     {
         currentStats.ResetDailyStats();
         StatsEvents.TriggerStatsChanged(currentStats);
+        Debug.Log($"StatsManager: Reset daily stats. Actions: {currentStats.actionsPerformedToday}/{currentStats.maxActionsPerDay}");
     }
 
     public void SetStats(PlayerStats newStats)
