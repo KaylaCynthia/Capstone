@@ -86,6 +86,10 @@ public class ChatMessageUI : MonoBehaviour
     public void AppendMessage(string additionalText)
     {
         messageText.text += additionalText;
+        if(messageText.text.Contains("\n\n"))
+        {
+            messageText.text = messageText.text.Replace("\n\n", "\n");
+        }
         StartCoroutine(ResizeAfterLayout());
     }
 

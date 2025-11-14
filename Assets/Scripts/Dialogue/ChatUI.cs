@@ -113,7 +113,7 @@ public class ChatUI
             return null;
         }
 
-        string targetArea = message.IsPlayer ? chatAreaManager.CurrentChatAreaName : (intendedChatArea ?? GetSpeakerChatArea(message.Speaker));
+        string targetArea = intendedChatArea ?? GetSpeakerChatArea(message.Speaker);
 
         if (targetArea == currentTypingChatArea && isTypingInProgress)
         {

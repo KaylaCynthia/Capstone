@@ -146,22 +146,17 @@ public class ChatDialogueManager : MonoBehaviour
         currentState.SetWaitingForInput(false);
 
         string processedMessage = ProcessMessageWithPlayerName(message);
+        string currentSpeaker = currentState.CurrentSpeaker;
+        string currentChatArea = chatUI.GetCurrentChatAreaName();
 
-        if (isPlayerMessage && currentPlayerMessageUI != null)
+        if (isPlayerMessage && string.IsNullOrEmpty(message.Trim()) && currentStory.currentChoices.Count > 0)
         {
-            float delay = processedMessage.Length / lettersPerSecond;
-            yield return new WaitForSeconds(delay);
+            // Debug.Log($"Skipping empty player choice line");
 
-            yield return StartCoroutine(AppendToPlayerMessage(processedMessage));
+            currentState.SetWaitingForInput(true);
 
-            if (currentStory.canContinue && currentStory.currentChoices.Count == 0)
+            if (currentStory.currentChoices.Count > 0)
             {
-                yield return new WaitForSeconds(1f);
-                ContinueStory();
-            }
-            else if (currentStory.currentChoices.Count > 0)
-            {
-                //Debug.Log($"Current choices amount: {currentStory.currentChoices.Count}");
                 yield return new WaitForSeconds(0.5f);
                 ShowChoicesIfInCorrectArea();
             }
@@ -169,9 +164,36 @@ public class ChatDialogueManager : MonoBehaviour
             yield break;
         }
 
+        if (isPlayerMessage && currentPlayerMessageUI != null)
+        {
+            bool shouldAppendToPlayer = lastSpeakerInCurrentArea == "You" && lastMessageFromUser.ContainsKey("You");
+
+            if (shouldAppendToPlayer)
+            {=
+                float delay = processedMessage.Length / lettersPerSecond;
+                yield return new WaitForSeconds(delay);
+
+                // Debug.Log($"Appending to existing player message: {processedMessage}");
+                yield return StartCoroutine(AppendToPlayerMessage(processedMessage));
+
+                if (currentStory.canContinue && currentStory.currentChoices.Count == 0)
+                {
+                    yield return new WaitForSeconds(1f);
+                    ContinueStory();
+                }
+                else if (currentStory.currentChoices.Count > 0)
+                {
+                    yield return new WaitForSeconds(0.5f);
+                    ShowChoicesIfInCorrectArea();
+                }
+
+                yield break;
+            }
+        }
+
         if (!isPlayerMessage)
         {
-            if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
+            if (currentChatArea == currentConversationChatArea)
             {
                 yield return StartCoroutine(chatUI.ShowTypingForDuration(processedMessage.Length / lettersPerSecond, currentConversationChatArea));
             }
@@ -185,40 +207,41 @@ public class ChatDialogueManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        string currentSpeaker = currentState.CurrentSpeaker;
-        //Debug.Log($"Current Speaker: {currentSpeaker}, IsPlayerMessage: {isPlayerMessage}");
         GameObject messageUI;
-        bool shouldAppend = !isPlayerMessage &&
-                           currentSpeaker == lastSpeakerInCurrentArea &&
-                           lastMessageFromUser.ContainsKey(currentSpeaker);
+
+        bool shouldAppend = currentSpeaker == lastSpeakerInCurrentArea && lastMessageFromUser.ContainsKey(currentSpeaker);
+
+        // Debug.Log($"Appending Check - Speaker: {currentSpeaker}, LastSpeaker: {lastSpeakerInCurrentArea}, HasLastMessage: {lastMessageFromUser.ContainsKey(currentSpeaker)}, ShouldAppend: {shouldAppend}");
 
         if (shouldAppend)
         {
-            //Debug.Log($"Appending to last message from {currentSpeaker}: {processedMessage}");
+            // Debug.Log($"Appending to last message from {currentSpeaker}: {processedMessage}");
             messageUI = lastMessageFromUser[currentSpeaker];
             chatUI.AppendToMessage(messageUI, processedMessage);
         }
         else
         {
-            //Debug.Log($"Creating new message from {currentSpeaker}: {processedMessage}");
+            // Debug.Log($"Creating new message from {currentSpeaker}: {processedMessage} in {currentConversationChatArea}");
             Sprite portraitSprite = GetPortraitSprite(currentState.CurrentPortraitTag);
-            ChatMessage chatMessage = currentState.IsPlayerSpeaking
-                ? new PlayerMessage(processedMessage, portraitSprite)
-                : new NPCMessage(currentState.CurrentSpeaker, processedMessage, portraitSprite);
+            ChatMessage chatMessage = currentState.IsPlayerSpeaking ? new PlayerMessage(processedMessage, portraitSprite) : new NPCMessage(currentState.CurrentSpeaker, processedMessage, portraitSprite);
+
+            // Debug.Log($"Before AddMessageToChat - IsPlayer: {currentState.IsPlayerSpeaking}, CurrentChatArea: {currentChatArea}, IntendedArea: {currentConversationChatArea}");
 
             messageUI = chatUI.AddMessageToChat(chatMessage, currentConversationChatArea);
 
-            if (messageUI != null && !isPlayerMessage)
+            if (messageUI != null)
             {
-                lastMessageFromUser[currentSpeaker] = messageUI;
-                lastSpeakerInCurrentArea = currentSpeaker;
-            }
-            else if (isPlayerMessage)
-            {
-                currentPlayerMessageUI = messageUI;
-                lastMessageFromUser.Remove("You");
-                lastMessageFromUser.Remove(currentSpeaker);
-                lastSpeakerInCurrentArea = null;
+                if (!isPlayerMessage)
+                {
+                    lastMessageFromUser[currentSpeaker] = messageUI;
+                    lastSpeakerInCurrentArea = currentSpeaker;
+                }
+                else
+                {
+                    currentPlayerMessageUI = messageUI;
+                    lastMessageFromUser["You"] = messageUI;
+                    lastSpeakerInCurrentArea = "You";
+                }
             }
         }
 
@@ -229,7 +252,7 @@ public class ChatDialogueManager : MonoBehaviour
             yield break;
         }
 
-        if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea || isPlayerMessage)
+        if (currentChatArea == currentConversationChatArea || isPlayerMessage)
         {
             chatUI.ScrollToBottom();
         }
@@ -298,7 +321,26 @@ public class ChatDialogueManager : MonoBehaviour
     {
         if (currentPlayerMessageUI != null)
         {
+            Debug.Log($"Appending to player message UI: {additionalText}");
             chatUI.AppendToMessage(currentPlayerMessageUI, "\n" + additionalText);
+        }
+        else
+        {
+            Debug.Log("No current player message UI to append to.");
+        }
+        yield return null;
+    }
+
+    private IEnumerator AppendToPlayerMessageSpecial(string additionalText)
+    {
+        if (currentPlayerMessageUI != null)
+        {
+            Debug.Log($"Appending to player message UI: {additionalText}");
+            chatUI.AppendToMessage(currentPlayerMessageUI, additionalText);
+        }
+        else
+        {
+            Debug.Log("No current player message UI to append to.");
         }
         yield return null;
     }
@@ -349,21 +391,41 @@ public class ChatDialogueManager : MonoBehaviour
 
         Sprite playerPortrait = GetPortraitSprite("player_portrait");
         ChatMessage playerMessage = new PlayerMessage(choiceText, playerPortrait);
-        GameObject messageUI = chatUI.AddMessageToChat(playerMessage);
 
-        if (messageUI != null)
+        string currentChatArea = chatUI.GetCurrentChatAreaName();
+        string currentSpeaker = "You";
+
+        bool shouldAppendChoice = lastSpeakerInCurrentArea == currentSpeaker &&
+                                 lastMessageFromUser.ContainsKey(currentSpeaker);
+
+        GameObject messageUI;
+
+        if (shouldAppendChoice)
         {
-            ChatMessageUI chatMessageUI = messageUI.GetComponentInChildren<ChatMessageUI>();
-            if (chatMessageUI != null)
-            {
-                chatMessageUI.SetMessageText(choiceText);
-            }
+            // Debug.Log($"Appending choice to existing player message: {choiceText}");
+            messageUI = lastMessageFromUser[currentSpeaker];
             currentPlayerMessageUI = messageUI;
+            StartCoroutine(AppendToPlayerMessage(choiceText));
+        }
+        else
+        {
+            // Debug.Log($"Creating new player choice message: {choiceText}");
+            messageUI = chatUI.AddMessageToChat(playerMessage);
+
+            if (messageUI != null)
+            {
+                ChatMessageUI chatMessageUI = messageUI.GetComponentInChildren<ChatMessageUI>();
+                if (chatMessageUI != null)
+                {
+                    chatMessageUI.SetMessageText(choiceText);
+                }
+                currentPlayerMessageUI = messageUI;
+                lastMessageFromUser["You"] = messageUI;
+                lastSpeakerInCurrentArea = "You";
+            }
         }
 
         chatUI.ScrollToBottom();
-        lastMessageFromUser.Clear();
-        lastSpeakerInCurrentArea = null;
     }
 
     private IEnumerator HandleEndOfConversation()
@@ -407,29 +469,6 @@ public class ChatDialogueManager : MonoBehaviour
                 yield break;
             }
         }
-
-        //if (firstDayManager != null)
-        //{
-        //    if (IsLastConversationOfDay())
-        //    {
-        //        DayManager dayManager = DayManager.GetInstance();
-        //        if (dayManager != null)
-        //        {
-        //            if (firstDayManager.IsFirstDay() && nextChatArea == "next_day")
-        //            {
-        //                firstDayManager.CompleteFirstDay();
-        //                yield return new WaitForSeconds(1f);
-        //                dayManager.StartNextDay();
-        //            }
-        //            else
-        //            {
-        //                yield return new WaitForSeconds(1f);
-        //                dayManager.StartNextDay();
-        //            }
-        //        }
-        //    }
-        //}
-
         StartCoroutine(ExitDialogueMode());
     }
 
@@ -446,20 +485,6 @@ public class ChatDialogueManager : MonoBehaviour
             }
         }
     }
-
-    //private bool IsLastConversationOfDay()
-    //{
-    //    if (currentStory == null) return false;
-
-    //    string currentKey = inkFileManager?.GetCurrentInkFile()?.name;
-    //    if (currentKey != null)
-    //    {
-    //        if (currentKey.Contains("next_day"))
-    //            return true;
-    //    }
-
-    //    return false;
-    //}
 
     private IEnumerator HandleDayTransition()
     {
@@ -479,17 +504,6 @@ public class ChatDialogueManager : MonoBehaviour
 
         StartCoroutine(ExitDialogueMode());
     }
-
-    //private string DetermineNextBranchAfterDayTransition()
-    //{
-    //    int currentDay = DayManager.GetInstance().GetCurrentDay();
-    //    switch (currentDay)
-    //    {
-    //        case 2: return "sunny_daytwo";
-    //        case 3: return "sunny_daythree";
-    //        default: return "sunny_intro";
-    //    }
-    //}
 
     private string DetermineNextChatArea()
     {
