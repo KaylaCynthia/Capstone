@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public class NamedAudioClip
-{
-    public string name;
-    public AudioClip clip;
-}
 public class AudioCollection : MonoBehaviour
 {
     [Header("========== Output ==========")]
@@ -16,15 +11,28 @@ public class AudioCollection : MonoBehaviour
 
     [Header("========== Background Music ==========")]
     public AudioClip mainMenu;
-    public AudioClip gameMenu;
+    public AudioClip game;
 
     [Header("========== SFX ==========")]
     public AudioClip buttonClick;
-    public AudioClip gameOver;
-    public AudioClip winGame;
-    public AudioClip cardSound;
+    public AudioClip chatNotification;
+    public AudioClip messageSound;
 
+    private static AudioCollection instance;
     private List<AudioSource> sfxSources = new List<AudioSource>();
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     public void PlayBGM(AudioClip clip)
     {
@@ -32,17 +40,8 @@ public class AudioCollection : MonoBehaviour
         BGM.loop = true;
         BGM.Play();
     }
-    public void PlaySound(AudioClip clip)
-    {
-        BGM.clip = clip;
-        BGM.PlayOneShot(clip);
-    }
 
     public void StopPlayBGM()
-    {
-        BGM.Stop();
-    }
-    public void StopPlayVO()
     {
         BGM.Stop();
     }
@@ -81,19 +80,6 @@ public class AudioCollection : MonoBehaviour
                 source.Stop();
             }
         }
-    }
-
-    public void PlayVO(AudioClip clip)
-    {
-        if (clip != null && SFX != null)
-        {
-            SFX.clip = clip;
-            SFX.Play();
-        }
-    }
-    public void StopVO()
-    {
-        SFX.Stop();
     }
 
     private AudioSource GetAvailableAudioSource()

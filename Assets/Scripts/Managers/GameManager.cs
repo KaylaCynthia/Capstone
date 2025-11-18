@@ -31,7 +31,6 @@ public class GameManager : MonoBehaviour
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -40,7 +39,7 @@ public class GameManager : MonoBehaviour
         InitializeDaySystem();
         InitializeAdditionalManagers();
 
-        CheckPlayerName();
+        ShowNameInputPanel();
     }
 
     private void InitializeAdditionalManagers()
@@ -53,37 +52,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void CheckPlayerName()
-    {
-        string savedName = PlayerPrefs.GetString("PlayerName", "");
-        if (PlayerData.IsValidPlayerName(savedName))
-        {
-            hasPlayerSetName = true;
-            StartCoroutine(StartGameWithTransition());
-        }
-        else
-        {
-            ShowNameInputPanel();
-        }
-    }
+    //private void CheckPlayerName()
+    //{
+    //    string savedName = PlayerPrefs.GetString("PlayerName", "");
+    //    if (PlayerData.IsValidPlayerName(savedName))
+    //    {
+    //        hasPlayerSetName = true;
+    //        StartCoroutine(StartGameWithTransition());
+    //    }
+    //    else
+    //    {
+    //        ShowNameInputPanel();
+    //    }
+    //}
 
     private void ShowNameInputPanel()
     {
         if (nameDataUI != null)
         {
-            Debug.Log("Showing name input panel");
             nameDataUI.Show(OnNameConfirmed, OnNamePanelClosed);
-        }
-        else
-        {
-            Debug.LogError("NameDataPanel reference is not set in GameManager!");
-            UseDefaultNameAndStart();
         }
     }
 
     private void OnNameConfirmed()
     {
-        Debug.Log("Player name confirmed");
         hasPlayerSetName = true;
         StartCoroutine(StartGameWithTransition());
     }
@@ -92,7 +84,6 @@ public class GameManager : MonoBehaviour
     {
         if (!hasPlayerSetName)
         {
-            Debug.Log("Name panel closed, using default name");
             UseDefaultNameAndStart();
         }
     }
@@ -131,27 +122,26 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (currentSceneName == "GameScene")
-            {
-                if (appSystemManager != null && appSystemManager.IsAppOpen)
-                {
-                    appSystemManager.ReturnToHomeScreen();
-                }
-                else
-                {
-                    Pause();
-                }
-            }
+            Pause();
         }
     }
 
-    public void Pause()
+    private void Pause()
     {
         if (pausePanel == null) return;
 
         isPaused = !isPaused;
         pausePanel.SetActive(isPaused);
         Time.timeScale = isPaused ? 0f : 1f;
+    }
+
+    public void Resume()
+    {
+        if (pausePanel == null) return;
+
+        isPaused = false;
+        pausePanel.SetActive(false);
+        Time.timeScale = 1f;
     }
 
     public void Settings()

@@ -17,7 +17,6 @@ public class StatsManager : MonoBehaviour
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
 
         InitializeDefaultStats();
     }

@@ -17,9 +17,7 @@ public class PlayerDataManager : MonoBehaviour
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        LoadPlayerData();
+        playerData.Reset();
     }
 
     public void SetPlayerName(string newName)
@@ -27,27 +25,26 @@ public class PlayerDataManager : MonoBehaviour
         if (PlayerData.IsValidPlayerName(newName))
         {
             playerData.PlayerName = newName;
-            SavePlayerData();
         }
     }
 
-    private void SavePlayerData()
-    {
-        PlayerPrefs.SetString("PlayerName", playerData.PlayerName);
-        PlayerPrefs.Save();
-    }
+    //private void SavePlayerData()
+    //{
+    //    PlayerPrefs.SetString("PlayerName", playerData.PlayerName);
+    //    PlayerPrefs.Save();
+    //}
 
-    private void LoadPlayerData()
-    {
-        if (PlayerPrefs.HasKey("PlayerName"))
-        {
-            string savedName = PlayerPrefs.GetString("PlayerName");
-            if (PlayerData.IsValidPlayerName(savedName))
-            {
-                playerData.PlayerName = savedName;
-            }
-        }
-    }
+    //private void LoadPlayerData()
+    //{
+    //    if (PlayerPrefs.HasKey("PlayerName"))
+    //    {
+    //        string savedName = PlayerPrefs.GetString("PlayerName");
+    //        if (PlayerData.IsValidPlayerName(savedName))
+    //        {
+    //            playerData.PlayerName = savedName;
+    //        }
+    //    }
+    //}
 
     public void ResetPlayerData()
     {

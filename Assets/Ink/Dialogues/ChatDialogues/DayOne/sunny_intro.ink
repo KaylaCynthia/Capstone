@@ -113,8 +113,14 @@ everyone there has felt like you... lost, disconnected
 
 - # speaker: Sunny
 # portrait: sunny_portrait
+cool.
+
+# speaker: TutorialBot
+# portrait: tutorialbot_portrait
 ~ nextChatArea = "ChatAreaSunny"
 ~ nextBranch = "sunny_intro2"
-cool.
+Hey there~
+In a few more seconds, you will be teleported to the home screen
+I'll see you there ^^
 
 -> END

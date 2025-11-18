@@ -30,7 +30,6 @@ public class DayManager : MonoBehaviour
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     public void StartNextDay()

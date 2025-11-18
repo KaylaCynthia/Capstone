@@ -169,7 +169,7 @@ public class ChatDialogueManager : MonoBehaviour
             bool shouldAppendToPlayer = lastSpeakerInCurrentArea == "You" && lastMessageFromUser.ContainsKey("You");
 
             if (shouldAppendToPlayer)
-            {=
+            {
                 float delay = processedMessage.Length / lettersPerSecond;
                 yield return new WaitForSeconds(delay);
 
@@ -331,20 +331,6 @@ public class ChatDialogueManager : MonoBehaviour
         yield return null;
     }
 
-    private IEnumerator AppendToPlayerMessageSpecial(string additionalText)
-    {
-        if (currentPlayerMessageUI != null)
-        {
-            Debug.Log($"Appending to player message UI: {additionalText}");
-            chatUI.AppendToMessage(currentPlayerMessageUI, additionalText);
-        }
-        else
-        {
-            Debug.Log("No current player message UI to append to.");
-        }
-        yield return null;
-    }
-
     private void ShowChoicesIfInCorrectArea()
     {
         if (chatUI.GetCurrentChatAreaName() == currentConversationChatArea)
@@ -455,6 +441,7 @@ public class ChatDialogueManager : MonoBehaviour
 
         if (inkFileManager.IsDayTransitionBranch(nextBranch))
         {
+            yield return new WaitForSeconds(3f);
             yield return StartCoroutine(HandleDayTransition());
             if (DialogueIsPlaying) yield break;
         }

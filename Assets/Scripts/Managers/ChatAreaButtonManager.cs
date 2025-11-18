@@ -48,7 +48,6 @@ public class ChatAreaButtonManager : MonoBehaviour
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()

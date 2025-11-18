@@ -8,7 +8,6 @@ public class NameDataUI : MonoBehaviour
     [SerializeField] private GameObject namePanel;
     [SerializeField] private TMP_InputField nameInputField;
     [SerializeField] private Button confirmButton;
-    [SerializeField] private Button cancelButton;
     [SerializeField] private TextMeshProUGUI errorText;
 
     [Header("Validation Settings")]
@@ -34,11 +33,6 @@ public class NameDataUI : MonoBehaviour
         if (confirmButton != null)
         {
             confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        }
-
-        if (cancelButton != null)
-        {
-            cancelButton.onClick.AddListener(OnCancelButtonClicked);
         }
 
         if (errorText != null)
@@ -153,12 +147,6 @@ public class NameDataUI : MonoBehaviour
         {
             ShowError("Please enter a valid name.");
         }
-    }
-
-    private void OnCancelButtonClicked()
-    {
-        onPanelClosed?.Invoke();
-        Hide();
     }
 
     private void ClearInput()
