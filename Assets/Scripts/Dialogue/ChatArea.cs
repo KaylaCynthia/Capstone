@@ -35,8 +35,15 @@ public class ChatArea : MonoBehaviour
 
     public void Clear()
     {
+        if (content == null) return;
+
         foreach (Transform child in content)
-            Destroy(child.gameObject);
+        {
+            if (child != null && child.gameObject != null)
+            {
+                DestroyImmediate(child.gameObject);
+            }
+        }
     }
 
     public void SetAsActive()

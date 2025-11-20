@@ -21,6 +21,14 @@ public class StatsManager : MonoBehaviour
         InitializeDefaultStats();
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     private void InitializeDefaultStats()
     {
         currentStats.health = 100f;

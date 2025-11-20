@@ -53,6 +53,11 @@ public class ChatNotificationManager : MonoBehaviour
         ChatNotificationEvents.OnNewMessageInInactiveArea -= OnNewMessage;
         ChatNotificationEvents.OnChatAreaViewed -= OnChatAreaSwitched;
         ServerEvents.OnServerChanged -= OnServerChanged;
+
+        if (instance == this)
+        {
+            instance = null;
+        }
     }
 
     private void InitializeNotificationMap()

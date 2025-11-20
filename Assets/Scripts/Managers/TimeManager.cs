@@ -24,6 +24,14 @@ public class TimeManager : MonoBehaviour
         TimeEvents.TriggerTimeChanged(currentTime);
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     public void AdvanceTime()
     {
         switch (currentTime)

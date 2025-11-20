@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private NameDataUI nameDataUI;
+    [SerializeField] private GameObject toBeContinuedPanel;
 
     [Header("Dependencies")]
     [SerializeField] private DayManager dayManager;
@@ -51,20 +52,6 @@ public class GameManager : MonoBehaviour
             firstDayObj.AddComponent<FirstDayManager>();
         }
     }
-
-    //private void CheckPlayerName()
-    //{
-    //    string savedName = PlayerPrefs.GetString("PlayerName", "");
-    //    if (PlayerData.IsValidPlayerName(savedName))
-    //    {
-    //        hasPlayerSetName = true;
-    //        StartCoroutine(StartGameWithTransition());
-    //    }
-    //    else
-    //    {
-    //        ShowNameInputPanel();
-    //    }
-    //}
 
     private void ShowNameInputPanel()
     {
@@ -154,7 +141,71 @@ public class GameManager : MonoBehaviour
 
     public void LoadMainMenu()
     {
+        ForceCompleteCleanup();
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void ShowToBeContinuedPanel()
+    {
+        if (toBeContinuedPanel != null)
+        {
+            Debug.Log("Showing To Be Continued panel");
+            toBeContinuedPanel.SetActive(true);
+
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Debug.LogError("ToBeContinuedPanel reference is not set in GameManager!");
+        }
+    }
+
+    public void HideToBeContinuedPanel()
+    {
+        if (toBeContinuedPanel != null)
+        {
+            toBeContinuedPanel.SetActive(false);
+        }
+    }
+
+    public void ReturnToMainMenuFromTBC()
+    {
+        HideToBeContinuedPanel();
+        LoadMainMenu();
+    }
+
+    private void ForceCompleteCleanup()
+    {
+        ChatDialogueManager chatManager = ChatDialogueManager.GetInstance();
+        if (chatManager != null)
+        {
+            chatManager.GetComponent<ChatDialogueManager>()?.GetChatAreaManager()?.CurrentChatArea?.Clear();
+        }
+
+        DestroyManagerInstance<ChatDialogueManager>();
+        DestroyManagerInstance<StatsManager>();
+        DestroyManagerInstance<DayManager>();
+        DestroyManagerInstance<PlayerDataManager>();
+        DestroyManagerInstance<ChatAreaButtonManager>();
+        DestroyManagerInstance<FirstDayManager>();
+        DestroyManagerInstance<TimeManager>();
+        DestroyManagerInstance<FoodChoiceManager>();
+        DestroyManagerInstance<ServerManager>();
+        DestroyManagerInstance<ServerLockManager>();
+        DestroyManagerInstance<ChatNotificationManager>();
+
+        Time.timeScale = 1f;
+
+        StopAllCoroutines();
+    }
+
+    private void DestroyManagerInstance<T>() where T : MonoBehaviour
+    {
+        T managerInstance = FindFirstObjectByType<T>();
+        if (managerInstance != null && managerInstance.gameObject != this.gameObject)
+        {
+            Destroy(managerInstance.gameObject);
+        }
     }
 
     public void ShowNameChangePanel()

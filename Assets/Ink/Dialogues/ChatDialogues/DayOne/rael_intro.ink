@@ -98,7 +98,7 @@ Feels different when it's not just text you know?
 # speaker: Rael
 # portrait: rael_portrait
 ~ nextChatArea = "ChatAreaRael"
-~ nextBranch = "next_day"
+~ nextBranch = "to_be_continued"
 No rush
 I just think it'd be nice to actually see you
 Anyway, get some rest. yeah?

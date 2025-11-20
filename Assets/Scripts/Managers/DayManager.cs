@@ -32,6 +32,14 @@ public class DayManager : MonoBehaviour
         instance = this;
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     public void StartNextDay()
     {
         if (isTransitioning) return;

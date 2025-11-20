@@ -220,5 +220,21 @@ public class ChatUI
         chatAreaManager.UpdateDependencies(this, buttonManager);
     }
 
+    public void ClearAllMessages()
+    {
+        foreach (var area in chatAreaManager.ChatAreas.Values)
+        {
+            area.Clear();
+        }
+
+        if (currentTypingCoroutine != null && coroutineRunner != null)
+        {
+            coroutineRunner.StopCoroutine(currentTypingCoroutine);
+            currentTypingCoroutine = null;
+        }
+        isTypingInProgress = false;
+        typingIndicator.SetActive(false);
+    }
+
     public ChatAreaManager GetChatAreaManager() => chatAreaManager;
 }

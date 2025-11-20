@@ -77,6 +77,27 @@ public class ChatDialogueManager : MonoBehaviour
         InitializeButtonSystem();
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+
+        if (DialogueIsPlaying)
+        {
+            StopAllCoroutines();
+            DialogueIsPlaying = false;
+        }
+
+        lastMessageFromUser?.Clear();
+        currentPlayerMessageUI = null;
+        lastSpeakerInCurrentArea = null;
+        currentState?.Reset();
+
+        chatUI?.Cleanup();
+    }
+
     private void InitializeButtonSystem()
     {
         ChatAreaButtonManager buttonManager = ChatAreaButtonManager.GetInstance();
@@ -444,6 +465,15 @@ public class ChatDialogueManager : MonoBehaviour
             yield return new WaitForSeconds(3f);
             yield return StartCoroutine(HandleDayTransition());
             if (DialogueIsPlaying) yield break;
+        }
+        else if (inkFileManager.IsToBeContinuedBranch(nextBranch))
+        {
+            yield return new WaitForSeconds(3f);
+            GameManager gameManager = GameManager.GetInstance();
+            if (gameManager != null)
+            {
+                gameManager.ShowToBeContinuedPanel();
+            }
         }
         else if (!string.IsNullOrEmpty(nextBranch))
         {

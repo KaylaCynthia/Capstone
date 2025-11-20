@@ -29,6 +29,14 @@ public class FirstDayManager : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     public void HandleFirstDayConversationEnd()
     {
         if (isFirstDay && !hasReturnedToHome)
@@ -45,10 +53,12 @@ public class FirstDayManager : MonoBehaviour
 
         AppSystemManager appManager = AppSystemManager.GetInstance();
         ServerLockManager serverLockManager = ServerLockManager.GetInstance();
+        TutorialManager tutorialManager = TutorialManager.GetInstance();
         if (appManager != null && serverLockManager != null)
         {
             serverLockManager.UnlockServerSwitching();
             appManager.ReturnToHomeScreen();
+            tutorialManager.StartTutorial("first_tutorial");
             hasReturnedToHome = true;
         }
     }

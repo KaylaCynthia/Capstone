@@ -50,6 +50,14 @@ public class ChatAreaButtonManager : MonoBehaviour
         instance = this;
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     private void Start()
     {
         InitializeAllDMButtonsAsLocked();

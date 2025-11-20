@@ -20,6 +20,14 @@ public class PlayerDataManager : MonoBehaviour
         playerData.Reset();
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     public void SetPlayerName(string newName)
     {
         if (PlayerData.IsValidPlayerName(newName))

@@ -59,4 +59,9 @@ public class InkFileManager : ScriptableObject
     {
         return branchKey == "next_day";
     }
+
+    public bool IsToBeContinuedBranch(string branchKey)
+    {
+        return branchKey == "to_be_continued";
+    }
 }

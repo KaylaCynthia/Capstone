@@ -38,6 +38,10 @@ public class FoodChoiceManager : MonoBehaviour
     private void OnDestroy()
     {
         DayEvents.OnDayChanged -= OnDayChanged;
+        if (instance == this)
+        {
+            instance = null;
+        }
     }
 
     private void OnDayChanged(int dayNumber)

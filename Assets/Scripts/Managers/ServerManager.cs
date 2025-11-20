@@ -29,6 +29,14 @@ public class ServerManager : MonoBehaviour
         serverLockManager = ServerLockManager.GetInstance();
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
     private void Start()
     {
         InitializeServers();
