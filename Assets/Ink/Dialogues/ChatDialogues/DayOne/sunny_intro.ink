@@ -3,7 +3,7 @@ VAR nextBranch = ""
 
 # speaker: Player
 # portrait: player_portrait
-+[hi, is this 12_sunny?]
++[hi, is this 12_sunny from Reddnet]
 
 - # speaker: Sunny
 # portrait: sunny_portrait
@@ -12,108 +12,129 @@ yep, it's me
 
 # speaker: Player
 # portrait: player_portrait
-+[sooo...]
-- i didn't expect that other people would actually relate to me
++[so...]
+- i didn't know i wasn't alone
 
 # speaker: Sunny
 # portrait: sunny_portrait
-actually, a lot of people do!
-well... especially the ones who actually care about what they're doing.
-you said you always feel like you never deserve the praise you got from your coworkers, right?
+of course not!
+well... especially the ones who actually care about what they're doing
+didn't you say you always feel weird when people praise you?
+like... you know you did the work, but it still feels like you somehow don't deserve it? 
 
 # speaker: Player
 # portrait: player_portrait
-+[yea, every time i get praised, i get so insecure that they will one day see that i'm not all that great]
-
-- # speaker: Sunny
-# portrait: sunny_portrait
-i totally get that <3
-it's okay! It's actually not insecurity, it's awareness
-seeing through the illusion of success system, you know?
-
-# speaker: Player
-# portrait: player_portrait
-+[that's... a cool way to put it, i guess]
-
-- # speaker: Sunny
-# portrait: sunny_portrait
-hahaha
-i used to write about it in my journal all the time
-it feels like there's no where for me to talk about this stuff
-until i found a server
-we talk about stuff like this all the time
-it's more like a small disscussion group, honestly
-not therapy or anything
-just a group of people that question things
-
-# speaker: Player
-# portrait: player_portrait
-+[oh yeah? what kind of things?]
-
-- # speaker: Sunny
-# portrait: sunny_portrait
-like, why people feel hollow even when they're "doing everything right"
-or why success feels fake
-or why most people live on autopilot
-really chill community
-no judgement whatsoever
-
-# speaker: Player
-# portrait: player_portrait
-+[sounds interesting...]
-
-- # speaker: Sunny
-# portrait: sunny_portrait
-yep
-it started as a study circle but turned into something more like community 
-there's this guy, Rael, who runs it
-and he's weirdly good at explaining these philosophical things 
-helped me a lot when i was where you are now
-
-# speaker: Player
-# portrait: player_portrait
-+[huh. i could use that kind of community tbh]
-- but i'm not really a group chat kinda person....
++[yea, every time i get praised, i don't feel like i deserve it]
+- Like they're talking about someone else
+I'm not that great
 
 # speaker: Sunny
 # portrait: sunny_portrait
-that's alright!
-you don't have to talk much
-just listen for a bit, see if it clicks
-we usually just talk about our day, or read posts Rael writes sometimes
-there're also Hulio and Ruse that almot always around
-They're the one that help Rael mods the server
+yeah, that's how it felt for me too
+it's like your brain refuses to accept any of it even tho you know you did all that
 
 # speaker: Player
 # portrait: player_portrait
-+[i see?]
-- what's the server called btw? i wanna search it up 
++[it's exhausting]
 
+- # speaker: Sunny
+# portrait: sunny_portrait
+i went through that for a long time 
+trapped between “I’m not enough” and “I can’t stop now”
+and because everyone sees you as "good," you kinda force yourself to keep going
+eventually it feels normal, even tho it isn't
+
+# speaker: Player
+# portrait: player_portrait
++[you talk like someone who's figured it out] -> branch1
++[so what changes for you?] -> branch2
+
+==branch1==
 # speaker: Sunny
 # portrait: sunny_portrait
-oh you can't search it on the internet 
-it's invite-only 
-not like "exclusive," just that poeple have to be... open-minded 
-if you want, i can ask one of the mods if i can sent you an invite
+i would't say "figured out"
+but i stopped trying to fix myself with the wrong things
+i tried therapy, didn't help
+those self-help books make it worse for me
+then i met these people online
+
+-> continue
+
+==branch2==
+# speaker: Sunny
+# portrait: sunny_portrait
+well...
+i met these people online
+
+-> continue
+
+==continue==
+# speaker: Sunny
+# portrait: sunny_portrait
+people who felt the same
+we just talked
+but everything just feels better
+they help me see how much that self doubt wasn't even mine
+it was a sign i've been listening to echoes from the dark for far too long 
 
 # speaker: Player
 # portrait: player_portrait
-+[you make it sounds so mysterious >--<]
++[echoes from the dark? you mean like the people around you?]
++[what do you mean?]
 
 - # speaker: Sunny
 # portrait: sunny_portrait
-hahaha, yea, sorry. it's not that deep tho 
-we just don't want anyone making trouble there
-you would like it, i think
-everyone there has felt like you... lost, disconnected
+it's hard to explain until you've seen it yourself
+you'll realize the echoes
+the lies people live by just to get through the day
+you'd be surprised how free it is once you see it
+we lift each other up by listening
+reminding one another that every sunset is just the promise of another dawn
 
 # speaker: Player
 # portrait: player_portrait
-+[sure, why not]
++[so... it's an echoes server?]
++[is it like a support group?]
 
 - # speaker: Sunny
 # portrait: sunny_portrait
-cool.
+yeah, it started as a study group but turned into something more like small community
+there's someone that started this group, his name is Rael
+he's... different
+he helped us a lot
+the one that shows us that light never truly leaves
+we usually meet at night since everyone have their own thing in the day
+the server is invite only
+i can send you the link if you want, no pressure tho
+
+# speaker: Player
+# portrait: player_portrait
++[sure, can't be worse than doomscrolling] -> branch3
++[invite only huh...] -> branch4
+
+==branch3==
+# speaker: Sunny
+# portrait: sunny_portrait
+i assure you, it'll be worth your time
+i'm sure that they'll help you as much as they helped me
+
+->continue2
+
+==branch4==
+# speaker: Sunny
+# portrait: sunny_portrait
+i know it's weird to trust strangers right away
+but no one's there gonna pressure you to do anything
+you can look around first
+still... i think you'd like it
+
+->continue2
+
+==continue2==
+- # speaker: Sunny
+# portrait: sunny_portrait
+i'll sent you the link later tonight once i got the permission
+just think about it first
 
 # speaker: TutorialBot
 # portrait: tutorialbot_portrait

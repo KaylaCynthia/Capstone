@@ -14,8 +14,7 @@ public class WorkAppUI : BaseAppUI
     {
         actionName = "Work",
         healthChange = -10f,
-        stressChange = 10f,
-        cashChange = 100
+        cashChange = 120
     };
 
     protected override void OnEnable()

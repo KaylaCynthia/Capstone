@@ -28,23 +28,15 @@ MonoBehaviour:
   - conversationKey: lounge_intro
     inkFile: {fileID: 4900000, guid: d267ee4365623664b8d7435f73864ce9, type: 3}
     nextPossibleBranches:
-    - first_daily
-  - conversationKey: first_daily
-    inkFile: {fileID: 4900000, guid: f1713ccd657436d469eabc54ac86f806, type: 3}
+    - next_day
+  - conversationKey: lounge_daytwo
+    inkFile: {fileID: 4900000, guid: 2a7bca38abd74af49863dc30cc41d51c, type: 3}
     nextPossibleBranches:
-    - lounge_intro2
-  - conversationKey: lounge_intro2
-    inkFile: {fileID: 4900000, guid: ce1eb5fae7e17604c9352a894dcf2a9a, type: 3}
-    nextPossibleBranches:
-    - rael_intro
-  - conversationKey: rael_intro
-    inkFile: {fileID: 4900000, guid: 24c3212995fd06d49b8ce667a4958f74, type: 3}
+    - sunroom_intro
+  - conversationKey: sunroom_intro
+    inkFile: {fileID: 4900000, guid: 59d1c1b6507fb274293279d0cbde7c9d, type: 3}
     nextPossibleBranches:
     - to_be_continued
-  - conversationKey: sunny_daytwo
-    inkFile: {fileID: 4900000, guid: 35bfc610d53f56e47b0604a2d57c9b95, type: 3}
-    nextPossibleBranches:
-    - lounge_daytwo
   - conversationKey: next_day
     inkFile: {fileID: 0}
     nextPossibleBranches: []

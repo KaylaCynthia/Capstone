@@ -14,7 +14,7 @@ public class ExerciseAppUI : BaseAppUI
     {
         actionName = "Exercise",
         healthChange = 10f,
-        stressChange = -10f,
+        stressChange = -15f,
         cashChange = 0
     };
 

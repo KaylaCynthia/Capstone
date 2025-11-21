@@ -14,7 +14,7 @@ public class SleepAppUI : BaseAppUI
     {
         actionName = "Sleep",
         healthChange = 20f,
-        stressChange = -20f,
+        stressChange = -25f,
         cashChange = 0
     };
 

@@ -6,10 +6,12 @@ public class FoodChoiceManager : MonoBehaviour
     [SerializeField] private GameObject foodPanel;
 
     [Header("Food Effects")]
-    [SerializeField] private float healthyFoodHealthGain = 50f;
-    [SerializeField] private float healthyFoodStressGain = 25f;
-    [SerializeField] private float junkFoodHealthLoss = 50f;
-    [SerializeField] private float junkFoodStressLoss = 50f;
+    [SerializeField] private float healthyFoodHealthGain;
+    [SerializeField] private float healthyFoodStressGain;
+    [SerializeField] private int healthyFoodCashChange;
+    [SerializeField] private float junkFoodHealthLoss;
+    [SerializeField] private float junkFoodStressLoss;
+    [SerializeField] private int junkFoodCashChange;
 
     private bool isFoodPanelActive = false;
     private DayManager dayManager;
@@ -97,10 +99,12 @@ public class FoodChoiceManager : MonoBehaviour
             case FoodChoice.Healthy:
                 currentStats.ModifyHealth(healthyFoodHealthGain);
                 currentStats.ModifyStress(healthyFoodStressGain);
+                currentStats.ModifyCash(healthyFoodCashChange);
                 break;
             case FoodChoice.Junk:
                 currentStats.ModifyHealth(-junkFoodHealthLoss);
                 currentStats.ModifyStress(-junkFoodStressLoss);
+                currentStats.ModifyCash(junkFoodCashChange);
                 break;
         }
 

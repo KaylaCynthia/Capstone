@@ -7,8 +7,8 @@ heya you made it :)
 
 # speaker: Mothtea
 # portrait: mothtea_portrait
-oh hey a new face
-welcome!!
+oh hey a new face (˵¯͒〰¯͒˵)
+welcome!! ☼
 
 # speaker: Hneybee
 # portrait: hneybee_portrait
@@ -34,8 +34,8 @@ be nice
 # portrait: coderuse_portrait
 polite one, rare species
 
-# speaker: Hulio
-# portrait: hulio_portrait
+# speaker: Hneybee
+# portrait: hneybee_portrait
 lol ignore him, he's just bored
 
 # speaker: HulioVerr
@@ -68,33 +68,31 @@ lmao she's not wrong
 -> part_2
 
 ==part_2==
-# speaker: Shiverfloww
-# portrait: shiverfloww_portrait
-oh! i'm late
-welcome!!
-
-# speaker: Mothtea
-# portrait: mothtea_portrait
-you're always late ckck
-brb i burned toast again
-
-# speaker: Momeow
-# portrait: momeow_portrait
-aw be careful
-
 # speaker: HulioVerr
 # portrait: hulioverr_portrait
-you'd think we'd have learned by now
+anyways
+unfortunately you missed Rael
+he just logged off
+he usually wants to talk to the new people first before they're joining the group
 
 # speaker: C0deRuse
 # portrait: coderuse_portrait
-never
-chaos is the only way
+yea...
+we will continue the conversation tomorrow yea
+good night guys
+
+# speaker: Sunny
+# portrait: sunny_portrait
+aww, we will talk more tomorrow
+
+# speaker: Momeow
+# portrait: momeow_portrait
+byeeee
 
 # speaker: Hneybee
 # portrait: hneybee_portrait
-~ nextChatArea = "ChatAreaDaily"
-~ nextBranch = "first_daily"
-It's tradition at this point
+~ nextChatArea = "ChatAreaLounge"
+~ nextBranch = "next_day"
+night guys
 
 -> END

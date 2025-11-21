@@ -52,11 +52,9 @@ public class FirstDayManager : MonoBehaviour
         yield return new WaitForSeconds(autoReturnToHomeDelay);
 
         AppSystemManager appManager = AppSystemManager.GetInstance();
-        ServerLockManager serverLockManager = ServerLockManager.GetInstance();
         TutorialManager tutorialManager = TutorialManager.GetInstance();
-        if (appManager != null && serverLockManager != null)
+        if (appManager != null)
         {
-            serverLockManager.UnlockServerSwitching();
             appManager.ReturnToHomeScreen();
             tutorialManager.StartTutorial("first_tutorial");
             hasReturnedToHome = true;

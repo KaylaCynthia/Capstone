@@ -19,7 +19,7 @@ here it is
 (link)
 join whenever you're ready
 just a heads up
-Rael and the other guys might message you to say hi
+the server would probably be loud
 they always does with new members
 don't worry, it's just their way of making you feel welcome
 -> END
