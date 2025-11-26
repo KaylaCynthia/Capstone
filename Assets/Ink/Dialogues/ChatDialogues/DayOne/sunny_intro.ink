@@ -133,15 +133,9 @@ still... i think you'd like it
 ==continue2==
 - # speaker: Sunny
 # portrait: sunny_portrait
-i'll sent you the link later tonight once i got the permission
-just think about it first
-
-# speaker: TutorialBot
-# portrait: tutorialbot_portrait
 ~ nextChatArea = "ChatAreaSunny"
 ~ nextBranch = "sunny_intro2"
-Hey there~
-In a few more seconds, you will be teleported to the home screen
-I'll see you there ^^
+i'll sent you the link later tonight once i got the permission
+just think about it first
 
 -> END

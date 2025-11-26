@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     public static GameManager GetInstance() => instance;
 
+    private AudioCollection audioCollection;
+
     private void Awake()
     {
         if (instance != null)
@@ -32,6 +34,8 @@ public class GameManager : MonoBehaviour
             return;
         }
         instance = this;
+        audioCollection = FindFirstObjectByType<AudioCollection>();
+        audioCollection.PlayBGM(audioCollection.mainMenu);
     }
 
     private void Start()
@@ -63,6 +67,7 @@ public class GameManager : MonoBehaviour
 
     private void OnNameConfirmed()
     {
+        audioCollection.PlaySFX(audioCollection.buttonClick);
         hasPlayerSetName = true;
         StartCoroutine(StartGameWithTransition());
     }
@@ -126,6 +131,7 @@ public class GameManager : MonoBehaviour
     {
         if (pausePanel == null) return;
 
+        audioCollection.PlaySFX(audioCollection.buttonClick);
         isPaused = false;
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
@@ -135,12 +141,14 @@ public class GameManager : MonoBehaviour
     {
         if (settingsPanel == null) return;
 
+        audioCollection.PlaySFX(audioCollection.buttonClick);
         isSettings = !isSettings;
         settingsPanel.SetActive(isSettings);
     }
 
     public void LoadMainMenu()
     {
+        audioCollection.PlaySFX(audioCollection.buttonClick);
         ForceCompleteCleanup();
         SceneManager.LoadScene("MainMenu");
     }

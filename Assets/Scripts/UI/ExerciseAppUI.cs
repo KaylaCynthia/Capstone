@@ -72,6 +72,7 @@ public class ExerciseAppUI : BaseAppUI
         bool success = StatsManager.GetInstance().PerformAction(exerciseEffect);
         if (success)
         {
+            AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
             Debug.Log("Exercise completed!");
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }

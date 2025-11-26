@@ -96,7 +96,7 @@ public class ChatAreaManager
             OnChatAreaSwitchBlocked?.Invoke(areaName);
             return;
         }
-
+        AudioCollection.GetInstance()?.PlaySFX(AudioCollection.GetInstance().buttonClick);
         SwitchToChatAreaInternal(areaName);
     }
 

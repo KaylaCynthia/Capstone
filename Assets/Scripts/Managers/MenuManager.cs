@@ -12,6 +12,8 @@ public class MenuManager : MonoBehaviour
     private bool isSettings = false;
     private bool isCredits = false;
 
+    private AudioCollection audioCollection;
+
     private void Awake()
     {
         if (instance != null)
@@ -20,15 +22,19 @@ public class MenuManager : MonoBehaviour
             return;
         }
         instance = this;
+        audioCollection = FindFirstObjectByType<AudioCollection>();
+        audioCollection.PlayBGM(audioCollection.mainMenu);
     }
 
     public void StartGame()
     {
+        AudioCollection.GetInstance()?.PlaySFX(AudioCollection.GetInstance().buttonClick);
         SceneManager.LoadScene("GameContent");
     }
 
     public void Settings()
     {
+        AudioCollection.GetInstance()?.PlaySFX(AudioCollection.GetInstance().buttonClick);
         if (settingsPanel == null) return;
 
         isSettings = !isSettings;
@@ -37,6 +43,7 @@ public class MenuManager : MonoBehaviour
 
     public void Credits()
     {
+        AudioCollection.GetInstance()?.PlaySFX(AudioCollection.GetInstance().buttonClick);
         if (creditsPanel == null) return;
 
         isCredits = !isCredits;
@@ -45,6 +52,7 @@ public class MenuManager : MonoBehaviour
 
     public void QuitGame()
     {
+        AudioCollection.GetInstance()?.PlaySFX(AudioCollection.GetInstance().buttonClick);
         Application.Quit();
     }
 }

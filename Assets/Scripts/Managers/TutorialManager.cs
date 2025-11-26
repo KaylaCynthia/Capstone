@@ -95,6 +95,8 @@ public class TutorialManager : MonoBehaviour
     {
         if (currentTutorialStory == null) return;
 
+        AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
+
         if (!currentTutorialStory.canContinue)
         {
             EndTutorial();

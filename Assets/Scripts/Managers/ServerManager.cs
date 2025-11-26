@@ -91,10 +91,12 @@ public class ServerManager : MonoBehaviour
     {
         if (currentServerType == "DMs" && !serverLockManager.IsServerSwitchingLocked())
         {
+            AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
             ShowChannelsServer();
         }
         else
         {
+            AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
             ShowDMsServer();
         }
     }

@@ -378,6 +378,8 @@ public class ChatDialogueManager : MonoBehaviour
     {
         if (currentStory.currentChoices.Count > choiceIndex)
         {
+            AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
+
             string choiceText = currentStory.currentChoices[choiceIndex].text;
 
             DisplayPlayerChoice(choiceText);

@@ -69,6 +69,7 @@ public class WorkAppUI : BaseAppUI
         if (success)
         {
             Debug.Log("Work completed!");
+            AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
         else

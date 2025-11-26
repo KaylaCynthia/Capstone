@@ -11,7 +11,7 @@ public class AudioCollection : MonoBehaviour
 
     [Header("========== Background Music ==========")]
     public AudioClip mainMenu;
-    public AudioClip game;
+    public AudioClip gameScene;
 
     [Header("========== SFX ==========")]
     public AudioClip buttonClick;
@@ -20,6 +20,15 @@ public class AudioCollection : MonoBehaviour
 
     private static AudioCollection instance;
     private List<AudioSource> sfxSources = new List<AudioSource>();
+
+    public static AudioCollection GetInstance()
+    {
+        if (instance == null)
+        {
+            instance = FindFirstObjectByType<AudioCollection>();
+        }
+        return instance;
+    }
 
     private void Awake()
     {
@@ -36,6 +45,7 @@ public class AudioCollection : MonoBehaviour
 
     public void PlayBGM(AudioClip clip)
     {
+        Debug.Log("Playing BGM: " + clip.name);
         BGM.clip = clip;
         BGM.loop = true;
         BGM.Play();

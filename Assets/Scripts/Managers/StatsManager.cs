@@ -31,9 +31,9 @@ public class StatsManager : MonoBehaviour
 
     private void InitializeDefaultStats()
     {
-        currentStats.health = 100f;
-        currentStats.stress = 0f;
-        currentStats.cash = 0;
+        currentStats.health = 60f;
+        currentStats.stress = 70f;
+        currentStats.cash = 500;
         currentStats.actionsPerformedToday = 0;
         currentStats.maxActionsPerDay = 3;
 

@@ -73,6 +73,7 @@ public class SleepAppUI : BaseAppUI
         if (success)
         {
             Debug.Log("Sleep completed! Stats updated.");
+            AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
             AppSystemManager.GetInstance().ReturnToHomeScreen();
         }
         else

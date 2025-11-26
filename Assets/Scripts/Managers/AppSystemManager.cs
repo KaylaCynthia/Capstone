@@ -119,6 +119,7 @@ public class AppSystemManager : MonoBehaviour
 
     public void LaunchApp(string appName)
     {
+        AudioCollection.GetInstance().PlaySFX(AudioCollection.GetInstance().buttonClick);
         AppInfo targetApp = applications.Find(app => app.appName == appName);
 
         if (targetApp == null)
